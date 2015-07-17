@@ -2941,7 +2941,7 @@ methods (Access = private)
 %             set(obj.cf,'ResizeFcn',['carpetplot.refreshmultiplelabels(' newResizeFcnStr ',' obj.instanceName ')']);
 %         end
         if isempty(obj.listener)
-            obj.listener = addlistener(obj.ca,'TightInset','PostSet',@obj.refreshlabels);
+            obj.listener = addlistener(obj.ca,'TightInset','PostGet',@obj.refreshlabels);
             obj.listenerX = addlistener(obj.ca,'XDir','PostSet',@obj.refreshlabels);
             obj.listenerY = addlistener(obj.ca,'YDir','PostSet',@obj.refreshlabels);
             obj.listenerLogX = addlistener(obj.ca,'XScale','PostSet',@obj.refreshlabels);
