@@ -420,7 +420,11 @@ if (length(page      )==1),   page       = o * page      ;   end;
 if (size(crossdir  ,1)==1),   crossdir   = o * crossdir  ;   end;
 if (length(ends      )==1),   ends       = o * ends      ;   end;
 if (length(ispatch   )==1),   ispatch    = o * ispatch   ;   end;
-ax = o * gca;
+
+ax = zeros(narrows,1);
+for idx = 1:narrows
+    ax(idx) = gca;
+end
 
 % if we've got handles, get the defaults from the handles
 if ~isempty(oldh),
