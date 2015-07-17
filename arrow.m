@@ -591,7 +591,8 @@ while (any(axnotdone)),
 		axl(ii,[1 2])=-axl(ii,[2 1]);
 	end;
 	% compute the range of 2-D values
-	curT = get(curax,'Xform');
+    axvw = get(curax,'View');
+    curT = viewmtx(axvw(1), axvw(2));
 	lim = curT*[0 1 0 1 0 1 0 1;0 0 1 1 0 0 1 1;0 0 0 0 1 1 1 1;1 1 1 1 1 1 1 1];
 	lim = lim(1:2,:)./([1;1]*lim(4,:));
 	curlimmin = min(lim')';
