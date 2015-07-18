@@ -1,4 +1,4 @@
-classdef carpetplot < handle
+classdef CarpetPlot < handle
     
     % CARPETPLOT is a class for creating carpet plots and cheater plots.
     %   Carpet plots are a way to illustrate three (Fig. 2) or four (Fig. 1)
@@ -24,11 +24,11 @@ classdef carpetplot < handle
     %                                          intersections line up vertically
     %                                          and there is no x-axis.
     %
-    %   OBJ = CARPETPLOT(a,b,x) plots a cheater plot and returns a carpetplot
+    %   OBJ = CARPETPLOT(a,b,x) plots a cheater plot and returns a CarpetPlot
     %   object, OBJ.
     %
     %   OBJ = CARPETPLOT(a,b,x,z), where z is a scalar, specifies a
-    %   z-coordinate for the carpetplot object useful for interpolating between
+    %   z-coordinate for the CarpetPlot object useful for interpolating between
     %   multiple carpets in a single plot.
     %
     %   OBJ = CARPETPLOT(a,b,x,y) plots a four variable carpet plot.
@@ -54,7 +54,7 @@ classdef carpetplot < handle
     %   	[A B] = meshgrid(a, b);
     %       Y = A.*B;
     %
-    %       o = carpetplot(A, B, Y); % carpetplot(a, b, Y) is also acceptable.
+    %       o = CarpetPlot(A, B, Y); % CarpetPlot(a, b, Y) is also acceptable.
     %       label(o, 'A-Axis', 'B-Axis')
     %    
     %   Example 2: Create a four variable carpet plot using scattered inputs.
@@ -63,13 +63,13 @@ classdef carpetplot < handle
     %       X = a.^3+b/5;
     %       Y = a-b;
     %
-    %       o = carpetplot(a, b, X, Y, 'LineWidth', 2, 'Color', 'black');
+    %       o = CarpetPlot(a, b, X, Y, 'LineWidth', 2, 'Color', 'black');
     %       label(o, 'A-Axis', 'B-Axis')
     %
-    %   <a href="matlab:showdemo('carpetplot')">Many more examples</a>.
+    %   <a href="matlab:showdemo('CarpetPlot')">Many more examples</a>.
     % 
     % 
-    %   CARPETPLOT properties:
+    %   CarpetPlot properties:
     %   The properties should be accessed using get() and set() methods.
     %
     %   Properties for data handling 
@@ -776,7 +776,7 @@ end
     
 methods
         
-    function obj = carpetplot(varargin)
+    function obj = CarpetPlot(varargin)
                 
         % Set the Style to 'standard'. This fills the axis variables with
         % certain style parameters
@@ -2496,7 +2496,7 @@ methods
         F=griddedInterpolant({1:size(yyy,1),1:size(yyy,2),zzzi},yyy);
         yyyi= F({1:size(yyy,1),1:size(yyy,2),zv});
 
-        outObj = carpetplot(varargin{1}.inputMatrixA,varargin{1}.inputMatrixB,xxxi,yyyi,zv);
+        outObj = CarpetPlot(varargin{1}.inputMatrixA,varargin{1}.inputMatrixB,xxxi,yyyi,zv);
         set(outObj,'aTick',get(varargin{1},'atick'),'bTick',get(varargin{1},'btick'));
                         
     end
@@ -2523,7 +2523,7 @@ methods
     %   x = b-a.^3;
     %   y = a.*b;
     %
-    %   plotObject = carpetplot(a,b,x,y);
+    %   plotObject = CarpetPlot(a,b,x,y);
     %   constraint(plotObject,'y<60 ','hatchedline');
     %
     %
@@ -2593,7 +2593,7 @@ methods
                     y = ones(1,50).*y;
                 end
                 
-                out = hatchedline(x,y,varargin{:});
+                out = CarpetPlot.hatchedlinefcn(x,y,varargin{:});
                 
                 for n=1:size(out(:))
                     set(out(n),'zData',get(out(n),'xData').*0+2.1)
@@ -2708,7 +2708,7 @@ methods
             
             %Plot
             if ~isempty(x) && ~isempty(y)
-                ret = hatchedline(x',y',varargin{:});
+                ret = CarpetPlot.hatchedlinefcn(x',y',varargin{:});
             else
                 warning('Data is out of Range')
                 ret = []; 
@@ -2731,7 +2731,7 @@ methods
         if nargin > 1
             labels = cell(1,size(varargin{1}(:),1));
             for n=1:size(varargin{1}(:),1)
-                labels{n} = 'carpetplot';
+                labels{n} = 'CarpetPlot';
             end
             for n=2:nargin
                 labels{n-1} = varargin{n};
@@ -2765,7 +2765,7 @@ methods
     % of the labels. All changes made manually or trough handles will be
     % lost and the current style will be restored.
     %
-    % See also: carpetplot.refresh
+    % See also: CarpetPlot.refresh
         obj.refreshplot;
         obj.plabel(1);
         obj.plabel(2);  
@@ -2863,8 +2863,8 @@ methods
             outText(1) = text(textPos(1),textPos(2),[obj.axis{1}.label '=' num2str(spaceA)]);
             set(outText(1),'VerticalAlignment','bottom','HorizontalAlignment','center','fontWeight','bold');
                         
-            outArrow(1) = arrow(startA,endA,'BaseAngle',20,'TipAngle',15,'Length',10);
-            outArrow(2) = arrow(startB,endB,'BaseAngle',20,'TipAngle',15,'Length',10);
+            outArrow(1) = CarpetPlot.arrow(startA,endA,'BaseAngle',20,'TipAngle',15,'Length',10);
+            outArrow(2) = CarpetPlot.arrow(startB,endB,'BaseAngle',20,'TipAngle',15,'Length',10);
             
         else
             warning('A cheater legend can only be applied to cheater plots')
@@ -2905,7 +2905,7 @@ methods (Access = private)
         obj.deleteHandle(obj.axis{nAxis}.arrowHandle)
         
         % Add the new arrow (temporary position)
-        obj.axis{nAxis}.arrowHandle = arrow([pDataX(1,1) pDataY(1,1)],[pDataX(1,end) pDataY(1,end)],obj.axis{nAxis}.arrowSpec{:});
+        obj.axis{nAxis}.arrowHandle = CarpetPlot.arrow([pDataX(1,1) pDataY(1,1)],[pDataX(1,end) pDataY(1,end)],obj.axis{nAxis}.arrowSpec{:});
         
         % Add the new label (temporary position)
         obj.axis{nAxis}.labelHandle = text(pDataX(1,1),pDataY(1,1),obj.axis{nAxis}.label);
@@ -2934,11 +2934,11 @@ methods (Access = private)
 %         if isempty(obj.instanceName)
 %             warning('The label rotation will not refresh automatically when resizing the figure window. Use obj.refresh to do it manually or don''t use an expression for the object''s name like o(1) or varargin{3} etc...')
 %         elseif isempty(ResizeFcnStr)
-%             set(obj.cf,'ResizeFcn',['carpetplot.refreshmultiplelabels(' obj.instanceName ')']);
+%             set(obj.cf,'ResizeFcn',['CarpetPlot.refreshmultiplelabels(' obj.instanceName ')']);
 %         elseif isempty(strfind(ResizeFcnStr,obj.instanceName))            
-%             newResizeFcnStr = strrep(ResizeFcnStr,'carpetplot.refreshmultiplelabels(','');
+%             newResizeFcnStr = strrep(ResizeFcnStr,'CarpetPlot.refreshmultiplelabels(','');
 %             newResizeFcnStr = strrep(newResizeFcnStr,')','');
-%             set(obj.cf,'ResizeFcn',['carpetplot.refreshmultiplelabels(' newResizeFcnStr ',' obj.instanceName ')']);
+%             set(obj.cf,'ResizeFcn',['CarpetPlot.refreshmultiplelabels(' newResizeFcnStr ',' obj.instanceName ')']);
 %         end
         if isempty(obj.listener)
             obj.listener = addlistener(obj.ca,'TightInset','PostGet',@obj.refreshlabels);
@@ -3028,7 +3028,7 @@ methods (Access = private)
                 aStart = [pDataX(pStart,1)+posVector(1) pDataY(pStart,1)+posVector(2)];
                 aEnd =  [pDataX(pStart,end)+posVector(1) pDataY(pStart,end)+posVector(2)];                
                 if nargin > 1 && ischar(varargin{1}) && strcmp(varargin{1},'position') 
-                    obj.axis{nAxis}.arrowHandle = arrow(obj.axis{nAxis}.arrowHandle,'start',aStart,'stop',aEnd);
+                    obj.axis{nAxis}.arrowHandle = CarpetPlot.arrow(obj.axis{nAxis}.arrowHandle,'start',aStart,'stop',aEnd);
                 end
             end
 
@@ -3125,7 +3125,7 @@ methods (Access = private)
                     % Update style if neccessary.
                     if nargin > 1 && ischar(varargin{1}) && strcmp(varargin{1},'style')                 
                         if ~isempty(obj.axis{nAxis}.arrowHandle) && ishandle(obj.axis{nAxis}.arrowHandle)
-                            obj.axis{nAxis}.arrowHandle = arrow(obj.axis{nAxis}.arrowHandle,obj.axis{nAxis}.arrowSpec{:});
+                            obj.axis{nAxis}.arrowHandle = CarpetPlot.arrow(obj.axis{nAxis}.arrowHandle,obj.axis{nAxis}.arrowSpec{:});
                         end
                         if ~isempty(obj.axis{nAxis}.labelHandle) && ishandle(obj.axis{nAxis}.labelHandle)
                             set(obj.axis{nAxis}.labelHandle,obj.axis{nAxis}.labelSpec{:});
@@ -3440,6 +3440,8 @@ methods (Access = private)
 end
      
 methods(Static)
+    [h, yy, zz] = arrow( varargin )
+    h = hatchedlinefcn( xc, yc, linespec, theta, ar, spc, len, varargin )
     
     function refreshmultiplelabels(varargin)
         

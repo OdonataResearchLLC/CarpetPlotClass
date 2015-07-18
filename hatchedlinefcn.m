@@ -1,6 +1,6 @@
-function h=hatchedline(xc,yc,linespec,theta,ar,spc,len,varargin)
-%HATCHEDLINE Plot curve with hatched style
-%   H=hatchedline(XC,YC,LINESPEC,THETA,AR,SPC,LEN,VARARGIN) plots the curve 
+function h=hatchedlinefcn(xc,yc,linespec,theta,ar,spc,len,varargin)
+%HATCHEDLINEFCN Plot curve with hatched style
+%   H=hatchedlinefcn(XC,YC,LINESPEC,THETA,AR,SPC,LEN,VARARGIN) plots the curve 
 %   specified in the vectors (XC, YC) with a hatched line style appropriate
 %   for constriant diagrams.  
 %
