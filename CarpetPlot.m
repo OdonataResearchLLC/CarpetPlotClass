@@ -2009,27 +2009,6 @@ methods
         end
     end
         
-    function alabel(obj,text)
-    % ALABEL adds labels to the a-axis.
-    %
-    %  ALABEL(obj) adds the label with a default string. This string is
-    %  usually the variable name given to the contructor of the class.
-    %
-    %  ALABEL(obj,str) adds the label with the defined str value.
-    %
-    % See Also: carpetplot.blabel, carpetplot.label
-    %    
-        obj.instanceName = inputname(1);
-        
-        if nargin > 1
-            obj.axis{1}.label = text;
-        end
-        
-        obj.plabel(1)
-        
-        obj.needRelabel = 0;
-    end
-    
     function blabel(obj,text)
     % BLABEL adds labels to the b-axis.
     %
