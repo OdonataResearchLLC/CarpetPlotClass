@@ -894,6 +894,7 @@ methods
     cplot( self )
     label( self, varargin )
     zlabel( self, varargin )
+    [ x, y ] = transformtoxy( self, A, B, force )
     ret = checkXYPoints( self, X, Y )
     [ maskFull, maskPlot ] = getConstrMask( self, constFunc )
     [ X, Y, dataX, dataY ] = interpAB( self, inA, inB )
@@ -2671,16 +2672,6 @@ methods (Access = private)
         if obj.plotholding == 0
             hold off
         end       
-    end
-    
-    function [x y] = transformtoxy(obj,A,B,force)
-        if nargin == 4
-            fitting = force;
-        else
-            fitting = obj.dataFitting;
-        end
-        x = interp2(obj.inputMatrixA,obj.inputMatrixB,obj.inputMatrixX,A,B,fitting);
-        y = interp2(obj.inputMatrixA,obj.inputMatrixB,obj.inputMatrixY,A,B,fitting);
     end
 end
 
