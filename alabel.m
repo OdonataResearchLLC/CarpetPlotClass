@@ -8,6 +8,7 @@ function alabel( self, text )
 %
 % See Also: CarpetPlot.blabel, CarpetPlot.label
 %
+
 self.instanceName = inputname(1);
 
 if nargin > 1

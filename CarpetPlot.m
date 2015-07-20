@@ -2008,27 +2008,6 @@ methods
            error([num2str(param) ' is not a carpet plot property']) 
         end
     end
-        
-    function blabel(obj,text)
-    % BLABEL adds labels to the b-axis.
-    %
-    %  BLABEL(obj) adds the label with a default string. This string is
-    %  usually the variable name given to the contructor of the class.
-    %
-    %  BLABEL(obj,str) adds the label with the defined str value.
-    %
-    % See Also: carpetplot.alabel, carpetplot.label
-    %    
-        obj.instanceName = inputname(1);
-        
-        if nargin > 1
-            obj.axis{2}.label = text;
-        end
-        
-        obj.plabel(2)
-        
-        obj.needRelabel = 0;
-    end
     
     function label(obj,varargin)
     % LABEL adds labels to the a- and b-axis.
