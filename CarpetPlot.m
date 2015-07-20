@@ -893,6 +893,7 @@ methods
     inputdata( self, varargin )
     cplot( self )
     label( self, varargin )
+    zlabel( self, varargin )
 
     %% Set and Get Functions
     % These functions do some checks before saving the input values.
@@ -1563,42 +1564,7 @@ methods
            error([num2str(param) ' is not a carpet plot property']) 
         end
     end
-    
-    function zlabel(obj,varargin)
-    % ZLABEL adds a z label to the carpet plot.            
         
-        if (sum(isnan(obj.plotDataX(:))) > 0) || (sum(isnan(obj.plotDataY(:))) > 0)
-            [a,b] = meshgrid(obj.axis{1}.interval,obj.axis{2}.interval);
-            [pDataX,pDataY] = obj.transformtoxy(a,b,'spline');
-        else
-            pDataX = obj.plotDataX;
-            pDataY = obj.plotDataY;
-        end
-        
-        mX = min(pDataX(:))+((max(pDataX(:))-min(pDataX(:)))/2);
-        
-        if nargin > 1
-            txt = varargin{1};
-        else
-            txt = ['z=' num2str(obj.z)];
-        end
-        if nargin > 2
-        obj.pZAlignement = varargin{end};
-        end
-        
-        switch obj.pZAlignement
-            case 'top'                
-                mY = max(pDataY(:)) + (max(pDataY(:))-min(pDataY(:))).*0.3;                
-            case 'bottom'                    
-                mY = min(pDataY(:)) - (max(pDataY(:))-min(pDataY(:))).*0.3;
-            otherwise
-                mY = max(pDataY(:)) + (max(pDataY(:))-min(pDataY(:))).*0.3;  
-        end
-        obj.deleteHandle(obj.pzlabelandle);
-        obj.pzlabelandle = text(mX,mY,txt);
-        set(obj.pzlabelandle,'HorizontalAlignment','center');
-    end
-    
      function [c cont] = contourf(obj,vectorA,vectorB,data,varargin)
         % CONTOURF, used with a carpet plot object, will transform the contour
         % to the a/b coordinate system. 
