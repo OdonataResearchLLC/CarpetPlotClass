@@ -2290,88 +2290,12 @@ methods (Access = private)
     [ pDataX, pDataY ] = getpData( self )
     [ X, Y, dataX, dataY ] = interpAB( self, inA, inB )
     label( self, varargin )
+    plabel( self, nAxis, varargin )
     zlabel( self, varargin )
     refreshlabels( self, varargin )
     refreshplot( self )
     settick( self, value, axis )
     [ x, y ] = transformtoxy( self, A, B, force )
-
-    function plabel(obj,nAxis,varargin)
-        %obj.lhLabelsFigure.Enabled = 'off';
-        %obj.lhLabelsAxis.Enabled = 'off';
-       
-        % Keep Hold Functionality
-        if ishold == 0
-          obj.holding = 0;
-          hold on
-        else
-          obj.holding = 1;
-        end
-        
-        [a,b] = meshgrid(obj.axis{1}.interval,obj.axis{2}.interval);
-        % If matrix contains NaNs --> interpolate
-        [pDataX,pDataY] = obj.getpData;
-        % Flip the matrix for the second axis
-        if nAxis == 2
-            pDataX = pDataX';
-            pDataY = pDataY';
-            pData = b';
-        else
-            pData = a;
-        end
-
-        
-        % Delete the arrow and the label
-        obj.deleteHandle(obj.axis{nAxis}.labelHandle)
-        obj.deleteHandle(obj.axis{nAxis}.arrowHandle)
-        
-        % Add the new arrow (temporary position)
-        obj.axis{nAxis}.arrowHandle = CarpetPlot.arrow([pDataX(1,1) pDataY(1,1)],[pDataX(1,end) pDataY(1,end)],obj.axis{nAxis}.arrowSpec{:});
-        
-        % Add the new label (temporary position)
-        obj.axis{nAxis}.labelHandle = text(pDataX(1,1),pDataY(1,1),obj.axis{nAxis}.label);
-        set(obj.axis{nAxis}.labelHandle,obj.axis{nAxis}.labelSpec{:});
-        
-        for n = 1 : size(obj.axis{nAxis}.textHandles(:),1)
-            obj.deleteHandle(obj.axis{nAxis}.textHandles(n));
-        end
-        obj.axis{nAxis}.textHandles = [];
-        
-        % Draw the values
-        for n = 1 : size(pDataX,2)
-            obj.axis{nAxis}.textHandles(n) = text(pDataX(1,n),pDataY(1,n),[obj.axis{nAxis}.preText num2str(pData(1,n)) obj.axis{nAxis}.postText]);
-            set(obj.axis{nAxis}.textHandles(n),obj.axis{nAxis}.textSpec{:});
-        end
-    
-        % Restore hold functionality        
-        if obj.holding == 0
-            hold off
-        end
-        
-        obj.refreshlabels('position')
-        
-        % Set a resizeFcn but keep previosly plotted carpets
-%         ResizeFcnStr = get(obj.cf,'ResizeFcn');
-%         if isempty(obj.instanceName)
-%             warning('The label rotation will not refresh automatically when resizing the figure window. Use obj.refresh to do it manually or don''t use an expression for the object''s name like o(1) or varargin{3} etc...')
-%         elseif isempty(ResizeFcnStr)
-%             set(obj.cf,'ResizeFcn',['CarpetPlot.refreshmultiplelabels(' obj.instanceName ')']);
-%         elseif isempty(strfind(ResizeFcnStr,obj.instanceName))            
-%             newResizeFcnStr = strrep(ResizeFcnStr,'CarpetPlot.refreshmultiplelabels(','');
-%             newResizeFcnStr = strrep(newResizeFcnStr,')','');
-%             set(obj.cf,'ResizeFcn',['CarpetPlot.refreshmultiplelabels(' newResizeFcnStr ',' obj.instanceName ')']);
-%         end
-        if isempty(obj.listener)
-            obj.listener = addlistener(obj.ca,'TightInset','PostGet',@obj.refreshlabels);
-            obj.listenerX = addlistener(obj.ca,'XDir','PostSet',@obj.refreshlabels);
-            obj.listenerY = addlistener(obj.ca,'YDir','PostSet',@obj.refreshlabels);
-            obj.listenerLogX = addlistener(obj.ca,'XScale','PostSet',@obj.refreshlabels);
-            obj.listenerLogY = addlistener(obj.ca,'YScale','PostSet',@obj.refreshlabels);
-        end
-        %addlistener(obj.cf,'Position','PostSet',@obj.refreshlabels);
-        %addlistener(obj.ca,'OuterPosition','PostSet',@obj.refreshlabels);
-        
-    end
 
     function newax = holdon(obj)
         % Keep Hold On Hold Off funcionality            
