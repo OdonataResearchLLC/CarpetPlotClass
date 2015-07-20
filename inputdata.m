@@ -85,8 +85,8 @@ if ~isvector(x)
 else
     % Input is scattered data: Interpolate X and Y with Griddedinterpolant
     [self.inputMatrixA,self.inputMatrixB] = meshgrid(unique(a),unique(b));
-    scatteredX = TriScatteredInterp(a,b,x);
-    scatteredY = TriScatteredInterp(a,b,y);
+    scatteredX = scatteredInterpolant(a,b,x);
+    scatteredY = scatteredInterpolant(a,b,y);
     self.inputMatrixX = scatteredX(self.inputMatrixA,self.inputMatrixB);
     self.inputMatrixY = scatteredY(self.inputMatrixA,self.inputMatrixB);
 end
