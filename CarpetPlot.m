@@ -890,6 +890,7 @@ methods
     alabel( self, text )
     blabel( self, text )
     [ outArrow, outText ] = cheaterlegend( self, varargin )
+    out = constraint( self, constraint, style, varargin)
     refresh( varargin )
 
     %% Set and Get Functions
@@ -1909,157 +1910,6 @@ methods
                         
     end
     
-    function out = constraint(obj,constraint,style,varargin)
-    % CONSTRAINT adds a constraint.
-    % 
-    % constraint(obj,const,style) adds a x- or y-constraint to the
-    % carpet plot. Const should be an equation containing 'x' and/or 'y'.
-    % constraint must be a string. (e.g. 'x > 5*y')
-    %
-    % For the style argument there are three different options.
-    %
-    %   'fill'          -   The restricted area will be filled in grey color.
-    %   'hatchedfill'   -   The restricted area will be filled with hatched lines.
-    %   'hatchedline'   -   A hatched line will be drawn. The orientation of the 
-    %                       hatched lines has to be set manually so far.
-    %
-    % Example:
-    %
-    %   hold on;
-    %   a =[1;2;3;1;2;3];
-    %   b =[10;10;10;30;30;30];
-    %   x = b-a.^3;
-    %   y = a.*b;
-    %
-    %   plotObject = CarpetPlot(a,b,x,y);
-    %   constraint(plotObject,'y<60 ','hatchedline');
-    %
-    %
-% 
-% % % Change the curve Fitting and style
-% % set(plotObject,'curvefitting','pchip','style','standard','blabelspacing',0.2,'barrowspacing',0.2);
-% 
-% % Add the contourf
-% hold on;
-% contourf(plotObject,1:0.1:3,10:1:30,peaks(21));
-% 
-% % Add some Constraints
-% const = constraint(plotObject,'y<60 ','fill',[0.3 0.3 0.3]);
-    %
-    %
-    
-        if ishold == 0
-          obj.holding = 0;
-          hold on
-        else
-          obj.holding = 1;
-        end
-    
-        if nargin < 3
-            style = 'hatchedline';
-            varargin = {'r-',45};
-        end
-    
-        
-   
-        switch style
-            case 'fill'
-                
-                [~,maskPlot] = getConstrMask(obj,constraint);
-        
-                [aaa,bbb] = meshgrid(obj.axis{1}.interval,obj.axis{2}.interval);
-                xxx = interp2(obj.inputMatrixA,obj.inputMatrixB,obj.inputMatrixX,aaa,bbb,obj.dataFitting);
-                yyy = interp2(obj.inputMatrixA,obj.inputMatrixB,obj.inputMatrixY,aaa,bbb,obj.dataFitting);
-                nxqq = min(xxx(:)):(max(xxx(:))-min(xxx(:)))/obj.CONTOUR_RESOLUTION:(max(xxx(:)));
-                nyqq = min(yyy(:)):(max(yyy(:))-min(yyy(:)))/obj.CONTOUR_RESOLUTION:(max(yyy(:)));
-                
-                if all(all(maskPlot == 0))
-                    warning('Constraint is out of bound')
-                else
-                    if isempty(varargin)
-                        varargin = {[0.5 0.5 0.5]};
-                    end
-                    
-                    cont = contourc(nxqq,nyqq,maskPlot,[1 1]);
-                    out = patch(cont(1,2:end),cont(2,2:end),varargin{:});
-                    
-                    set(out,'zData',get(out,'yData')*0+0.5);
-                    set(out,'LineStyle','none');                    
-                end
-            case 'hatchedline'
-               
-                
-                
-                x = linspace(min(obj.plotDataX(:)),max(obj.plotDataX(:)),50);
-                
-                constraint = strrep(constraint,'>','==');
-                constraint = strrep(constraint,'<','==');
-                
-                eq = solve(constraint,'y');
-                y = eval(eq);
-                if isscalar(y)
-                    y = ones(1,50).*y;
-                end
-                
-                out = CarpetPlot.hatchedlinefcn(x,y,varargin{:});
-                
-                for n=1:size(out(:))
-                    set(out(n),'zData',get(out(n),'xData').*0+2.1)
-                    
-                end
-                
-                % Alternative use of hatchedcontours
-%                 if all(all(maskFull == 0)) || all(all(maskFull == 1))
-%                     warning('Constraint is out of bound')
-%                 else
-%                     c=contour(nxqq,nyqq,maskFull,[1 1]);
-%                     if ~isempty(varargin)
-%                         h = hatchedcontours(c,'b-',degtorad(varargin{1}));
-%                         set(h(1),'LineWidth',1.5);
-%                     else
-%                         h = hatchedcontours(c);
-%                     end
-%                     out = h;
-%                 end    
-            case 'hatchedfill'
-                
-                [~,maskPlot] = getConstrMask(obj,constraint);
-        
-                [aaa,bbb] = meshgrid(obj.axis{1}.interval,obj.axis{2}.interval);
-                xxx = interp2(obj.inputMatrixA,obj.inputMatrixB,obj.inputMatrixX,aaa,bbb,obj.dataFitting);
-                yyy = interp2(obj.inputMatrixA,obj.inputMatrixB,obj.inputMatrixY,aaa,bbb,obj.dataFitting);
-                nxqq = min(xxx(:)):(max(xxx(:))-min(xxx(:)))/obj.CONTOUR_RESOLUTION:(max(xxx(:)));
-                nyqq = min(yyy(:)):(max(yyy(:))-min(yyy(:)))/obj.CONTOUR_RESOLUTION:(max(yyy(:)));
-                
-                if all(all(maskPlot == 0))
-                    warning('Constraint is out of bound')
-                else
-                    [~,h2] = contourf(nxqq,nyqq,maskPlot,[1 1]); 
-                    set(h2,'linestyle','none');
-                    hp = findobj(h2,'type','patch');
-                    h = hatchfill(hp(end),varargin{:});
-                end
-                out = h;
-%             case 'fade'
-%                 if all(all(maskPlot == 0))
-%                     warning('Constraint is out of bound')
-%                 else
-%                     h = fadeline(nxqq,nyqq,maskFull);
-%                 end
-%                 out = h;
-%                 obj.constraints{end+1} = h(:)';    
-            otherwise
-                error('Unknown Style: Try fill, hatchedfill or hatchedline')
-    
-        end
-        
-        % Restore Hold Functionality        
-            if obj.holding == 0
-                hold off
-            end
-        
-    end
-    
     function [x y] = abtoxy(obj,a,b)
     % XYTOAB Transforms XY coordinates into the coordinate system of the
     % carpet. 
@@ -2122,9 +1972,6 @@ methods
                 ret = []; 
             end            
     end
-    
-    
-   
 
     function legend(varargin)
     % LEGEND plots legends for one or multiple carpet plots.
@@ -2163,9 +2010,7 @@ methods
         legend(handles);
     
     end
-    
-    
-    
+
     function reset(obj)
     % RESET manual changes made with the plot tool box. 
     % 
