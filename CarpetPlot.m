@@ -1563,7 +1563,7 @@ methods
         end
     end
         
-     function [c cont] = contourf(obj,vectorA,vectorB,data,varargin)
+     function [c, cont] = contourf(obj,vectorA,vectorB,data,varargin)
         % CONTOURF, used with a carpet plot object, will transform the contour
         % to the a/b coordinate system. 
         % 
@@ -1910,7 +1910,7 @@ methods
                         
     end
     
-    function [x y] = abtoxy(obj,a,b)
+    function [x, y] = abtoxy(obj,a,b)
     % XYTOAB Transforms XY coordinates into the coordinate system of the
     % carpet. 
     %
