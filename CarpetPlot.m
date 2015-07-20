@@ -892,6 +892,7 @@ methods
     refresh( varargin )
     refreshplot( self )
     inputdata( self, varargin )
+    settick( self, value, axis )
     cplot( self )
     label( self, varargin )
     zlabel( self, varargin )
@@ -2558,47 +2559,6 @@ methods (Access = private)
             end
         end
         
-    end
-    
-    function settick(obj,value,axis)
-       
-        
-        
-        % Asign the new interval.
-        obj.axis{axis}.interval = value;
-        obj.needPlotRefresh = 1;           
-        % Calculate the x matrix. For cheater plots only.
-        if (obj.type == 3)
-            stepA = (max(obj.axis{1}.interval(:))-min(obj.axis{1}.interval(:)))/(size(obj.axis{1}.interval(:),1)-1);  
-            stepB = (max(obj.axis{2}.interval(:))-min(obj.axis{2}.interval(:)))/(size(obj.axis{2}.interval(:),1)-1);
-            if obj.pK2 < 0
-                obj.pK2 = -stepA/stepB;
-            else
-                obj.pK2 = stepA/stepB;
-            end
-            if obj.pK1 < 0
-                obj.pK1 = -1;
-            else
-                obj.pK1 = 1;
-            end
-            obj.inputMatrixX = obj.pK0 + obj.pK1.*obj.inputMatrixA+obj.pK2.*obj.inputMatrixB;
-            %obj.refreshplot;
-        end
-            
-            if ~isempty(obj.axis{axis}.textHandles)
-                % Delete all text handles.
-                for n = 1 : size(obj.axis{axis}.textHandles(:),1)
-                    obj.deleteHandle(obj.axis{axis}.textHandles(n));
-                end
-                obj.axis{axis}.textHandles = [];
-                obj.refreshplot;
-                if axis == 1
-                    obj.plabel(1);
-                else
-                    obj.plabel(2);
-                end
-            end
-     
     end
     
     function newax = holdon(obj)
