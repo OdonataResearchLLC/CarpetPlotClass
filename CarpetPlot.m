@@ -890,20 +890,6 @@ methods
     alabel( self, text )
     blabel( self, text )
     refresh( varargin )
-    refreshplot( self )
-    refreshlabels( self, varargin )
-    inputdata( self, varargin )
-    settick( self, value, axis )
-    cplot( self )
-    label( self, varargin )
-    zlabel( self, varargin )
-    [ x, y ] = transformtoxy( self, A, B, force )
-    ret = checkXYPoints( self, X, Y )
-    [ maskFull, maskPlot ] = getConstrMask( self, constFunc )
-    [ X, Y, dataX, dataY ] = interpAB( self, inA, inB )
-    [ hLine, hPoint, hText] = ...
-        drawinterpolation( self, X, Y, dataX, dataY, lineStyle)
-    [ pDataX, pDataY ] = getpData( self )
 
     %% Set and Get Functions
     % These functions do some checks before saving the input values.
@@ -2295,7 +2281,21 @@ methods
 end
 
 methods (Access = private)
-    
+    ret = checkXYPoints( self, X, Y )
+    cplot( self )
+    [ hLine, hPoint, hText] = ...
+        drawinterpolation( self, X, Y, dataX, dataY, lineStyle)
+    inputdata( self, varargin )
+    [ maskFull, maskPlot ] = getConstrMask( self, constFunc )
+    [ pDataX, pDataY ] = getpData( self )
+    [ X, Y, dataX, dataY ] = interpAB( self, inA, inB )
+    label( self, varargin )
+    zlabel( self, varargin )
+    refreshlabels( self, varargin )
+    refreshplot( self )
+    settick( self, value, axis )
+    [ x, y ] = transformtoxy( self, A, B, force )
+
     function plabel(obj,nAxis,varargin)
         %obj.lhLabelsFigure.Enabled = 'off';
         %obj.lhLabelsAxis.Enabled = 'off';
