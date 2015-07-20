@@ -890,6 +890,7 @@ methods
     alabel( self, text )
     blabel( self, text )
     refresh( varargin )
+    refreshplot( self )
     inputdata( self, varargin )
     cplot( self )
     label( self, varargin )
@@ -2599,50 +2600,6 @@ methods (Access = private)
             end
      
     end
-    
-    function refreshplot(obj)   
-        % Delete the old line handles.
-        for i = 1:2
-            for n = 1:size(obj.axis{i}.lineHandles(:),1)
-                obj.deleteHandle(obj.axis{i}.lineHandles(n));                
-            end
-            if ~isempty(obj.axis{i}.extrapLineHandles)
-                for n = 1:size(obj.axis{i}.extrapLineHandles(:),1)
-                    obj.deleteHandle(obj.axis{i}.extrapLineHandles(n));                
-                end
-            end
-            
-            for n = 1:size(obj.axis{i}.intersectionHandles(:),1)
-                obj.deleteHandle(obj.axis{i}.intersectionHandles(n));
-            end
-            obj.axis{i}.lineHandles = [];
-            obj.axis{i}.intersectionHandles = [];
-        end
-        
-        % Independent of the hold status --> hold on
-        if ishold == 0          
-          obj.holding = 0;
-          hold on
-        else
-          obj.holding = 1;
-        end
-        
-        obj.keepTicks = 0;
-        
-        % Replot the carpet
-        obj.cplot()
-        obj.keepTicks = 0;
-        
-        % Restore hold functionality.
-        if obj.holding == 0
-            hold off
-        end
-        
-        %obj.needPlotRefresh
-        obj.needPlotRefresh = 0;
-    end
-    
-    
     
     function newax = holdon(obj)
         % Keep Hold On Hold Off funcionality            
