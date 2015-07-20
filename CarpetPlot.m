@@ -894,6 +894,7 @@ methods
     cplot( self )
     label( self, varargin )
     zlabel( self, varargin )
+    ret = checkXYPoints( self, X, Y )
     [ maskFull, maskPlot ] = getConstrMask( self, constFunc )
     [ X, Y, dataX, dataY ] = interpAB( self, inA, inB )
     [ hLine, hPoint, hText] = ...
@@ -2680,16 +2681,6 @@ methods (Access = private)
         end
         x = interp2(obj.inputMatrixA,obj.inputMatrixB,obj.inputMatrixX,A,B,fitting);
         y = interp2(obj.inputMatrixA,obj.inputMatrixB,obj.inputMatrixY,A,B,fitting);
-    end
-    
-    function ret = checkXYPoints(~,X,Y) 
-        checkedPoints = X .* Y;
-        checkedPoints(~isfinite(checkedPoints)) = [];
-        if size(checkedPoints(:),1) > 1 
-            ret = 1;
-        else
-            ret = 0;
-        end
     end
 end
 
