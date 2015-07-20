@@ -1,15 +1,30 @@
-%% CarpetPlot Class Example Plots
-% These are some examples plots made with the CarpetPlot class.
-
-%% Simple Example
-% In the beginning a simple example. More details about creating and
-% labeling a carpet plot will be illustrated in the following examples.
+function examples()
+% EXAMPLES CarpetPlot Class Example Plots
 
 set(gcf,'Renderer','OpenGL')
 
+clf; example01; pause
+clf; example02; pause
+clf; example03; pause
+clf; example04; pause
+clf; example05; pause
+clf; example06; pause
+clf; example07; pause
+clf; example08; pause
+clf; example09; pause
+clf; example10; pause
+clf; example11; pause
+clf; example12
+
+end
+
+function example01()
+% In the beginning a simple example. More details about creating and
+% labeling a carpet plot will be illustrated in the following examples.
+
 a = 1:0.25:2;
 b = 1:20:100;
-[A B] = meshgrid(a,b);
+[A, B] = meshgrid(a,b);
 Y = A.*B;
 
 o = CarpetPlot(A,B,Y);
@@ -17,7 +32,8 @@ label(o,'A-Axis','B-Axis')
 
 grid on;
 
-
+fprintf('Example 1 ...\n')
+end
 
 %%  Input Data
 % The CarpetPlot class supports different kind of input data. The data can
@@ -26,19 +42,14 @@ grid on;
 %
 % There are two different types of carpet plots:
 %
-%%
 % *The cheater plot*
-%
-%%
 %  obj = CarpetPlot(a,b,Y)
 %  obj = CarpetPlot(a,b,Y,z)
-%%
+%
 % *The (real) carpet plot*
-%%
 %  obj = CarpetPlot(a,b,X,Y)
 %  obj = CarpetPlot(a,b,X,Y,z)
 %
-%%
 % In case of exact data A and B can be eather vectors or meshgrids.
 %
 % If the input data are scattered data points a,b,(x) and y must be vectors
@@ -47,44 +58,51 @@ grid on;
 % The z parameter is only used for the interpolation of whole carpet plots
 % or lattice plots.
 % 
-%%
+%
 % <<input.png>>
 %
 % 
 
-%%
+function example02()
 % A plot using exact data input and Meshgrids
-warning off; % Suppress warnings (optional)
+
 a = linspace(1,100,30);
 b = linspace(100,200,20);
-[A B] = meshgrid(a,b);
+[A, B] = meshgrid(a,b);
 X = A.^2+B;
 Y = A+B;
-o = CarpetPlot(A,B,X,Y);
 
+CarpetPlot(A,B,X,Y);
 
-%%
+fprintf('Example 2 ...\n')
+end
+
+function example03()
 % Using the vectors for a and b has the same effect
 
-clf;
-warning off; % Suppress warnings (optional)
 a = linspace(1,100,30);
 b = linspace(100,200,20);
 [A,B] = meshgrid(a,b);
 X = A.^2+B;
 Y = A+B;
-o = CarpetPlot(a,b,X,Y);
 
-%%
+CarpetPlot(a,b,X,Y);
+
+fprintf('Example 3 ...\n')
+end
+
+function example04()
 % Scattered data
 
-clf;
 a = [1 1 1 2 2 2 3 3 3];
 b = [10 20 30 10 20 30 10 20 30];
 X = a.^2+a;
 Y = a+b;
-o = CarpetPlot(a,b,X,Y);
 
+CarpetPlot(a,b,X,Y);
+
+fprintf('Example 4 ...\n')
+end
 
 %% Curve Fitting
 % In the default case the interpolations of the carpet plot will be
@@ -101,8 +119,8 @@ o = CarpetPlot(a,b,X,Y);
 % *epchip* or *espline* pr *elinear* as these methods consider all input
 % datapoints for plotting.
 %
-% The following example illustrates the different effects of the curve
-% fitting methods.
+function example05()
+% Illustrates the different effects of the curve fitting methods.
 
 a = linspace(-.5,1,50);
 b = linspace(-1,6,14);
@@ -110,7 +128,7 @@ b = linspace(-1,6,14);
 Y = A.^3+B;
 X = A-B*.2;
 Y(1,4) = Y(1,4)-0.1;
-clf;
+
 hold on;
 
 oinput = CarpetPlot(A,B,X,Y,'o','Color',[0.2 0.2 0.2]);
@@ -133,8 +151,10 @@ legend([oinput olinear ospline opchip oepchip oespline oelinear] ...
 
 xlim([-0.32 0.1]); ylim([-1.17 -0.86])
 
-%%
-% As you can see all curve fitting methods have their trade offs. *pchip*
+fprintf('Example 5 ...\n');
+end
+
+%% As you can see all curve fitting methods have their trade offs. *pchip*
 % and *spline* don't consider the points between the intersections. 
 %
 % *linear* just draws a straight line.
@@ -143,22 +163,18 @@ xlim([-0.32 0.1]); ylim([-1.17 -0.86])
 % lot of input data. *espline* especially with the data anomaly swings out
 % a lot.
 %
-% 
-
-
-
 %% Cheater Plots
 % Cheater plots do not have an x axis. The x-values for the vizualisation
 % will calculated using 
-%%
+%
 %  X = k0 + a*K1 + b*K2
 %
-%%
 % The K values controll the plotting direction of the plot and as default
 % the intersections align vertically. The allignement does only work if the
 % a and b values are equally spaced.
 
-clf;
+function example06()
+
 aValues = [1 1 1 2 2 2 3 3 3];
 bValues = [10 15 20 10 15 20 10 15 20];
 Y = aValues+bValues;
@@ -168,22 +184,26 @@ set(o,'style','clean','alabelspacing',0.15);
 [arrowH,textH] = cheaterlegend(o,'northwest');
 grid on;
 
-%%
+fprintf('Example 6, first part ...\n')
+
+pause
+
 % Use get and set to change the K Values. The Intersections will not allign
 % vertically anymore.
-
-delete(arrowH,textH)
-
+delete(arrowH)
+delete(textH)
 set(o,'K1',get(o,'K1')*3)
-
 cheaterlegend(o,'northwest');
 grid on
 
+fprintf('Example 6, second part ...\n')
+end
+
 %% Multiple Plots
+function example07()
 % The CarpetPlot class supports multiple plots. They can just be plotted
 % into one figure by using the |hold on| command.
 
-clf;
 a =[1;2;3;1;2;3];
 b =[10;10;10;30;30;30];
 x = b-a.^3;
@@ -197,33 +217,34 @@ o3 = CarpetPlot(a,b,x+190,y+15,34);
 zlabel(o1,'Plot1 (z=10)');
 zlabel(o2,'Plot2 (z=22)');
 zlabel(o3,'Plot3 (z=34)');
-[hlines hmarkers htext] = showpoint(o1,o2,o3,1.7,23);
-snapnow; %Only needed for publishing
+[hlines, hmarkers, htext] = showpoint(o1,o2,o3,1.7,23);
 
-%%
-% A whole plot can be interpolated. The showpoint lines and text can be deleted using the handles.
+fprintf('Example 7, first part ...\n')
+
+pause
+
+% A whole plot can be interpolated. The showpoint lines and text can be
+% deleted using the handles.
 
 delete(hlines); delete(hmarkers); delete(htext);
 oi = interpolateplot(o1,o2,o3,30);
 set(get(oi,'aLines'),'color',[0.5 0.5 0.5],'LineStyle','--');
 set(get(oi,'blines'),'color',[0.5 0.5 0.5],'LineStyle','--');
-snapnow; %Only needed for publishing
 
-%%
+fprintf('Example 7, second part ...\n')
+end
+
+function example08()
 % Altough cheater plot's do not have an x-axis multiple carpets can be
 % plotted using the lattice method. The x-axis shifting of the plot will
 % represent the plot's z-value.
 
-clear;
-clf;
-
 a = linspace(1,10,3);
 b = linspace(10,30,3);
-[A B] = meshgrid(a,b);
+[A, B] = meshgrid(a,b);
 X1 = A.*B;
 X2 = (A.*B).*2;
 X3 = (A.*B).*3;
-
 
 hold on;
 o1 = CarpetPlot(A,B,X1,-124);
@@ -238,58 +259,63 @@ alabel(o3); blabel(o1);
 lLines = lattice(o1,o2,o3,'lines');
 set(lLines,'LineWidth',0.5);
 
+fprintf('Example 8 ...\n')
+end
+
 %% Styles
 % The CarpetPlot class supports the possibility to customize the carpet
 % plot with built in styles as well as with custom parameters.
 
-%%
+function example09()
 hold off;
-clear;
-clf;
 
 a = linspace(1,10,3);
 b = linspace(10,30,3);
-[A B] = meshgrid(a,b);
+[A, B] = meshgrid(a,b);
 X = A+3.*B;
 
 o = CarpetPlot(A,B,X);
 label(o);
 title('carpet plot with standard parameters')
-snapnow; %Only needed for publishing
-%%
+fprintf('Example 9, standard parameters ...\n')
+pause
+
 o = CarpetPlot(A,B,X,'ko--');
 label(o);
 title('carpet plot with custom line spec')
-snapnow; %Only needed for publishing
+fprintf('Example 9, custom line spec ...\n')
+pause
 
-%%
 o = CarpetPlot(A,B,X);
 label(o);
 set(o.alines,'color',[1 0 0],'linestyle',':')
-snapnow; %Only needed for publishing
-
-%%
+fprintf('Example 9, custom line style ...\n')
+pause
 
 o = CarpetPlot(A,B,X); label(o); 
 set(o,'style','standard');
 title('Standard Style');
-snapnow; %Only needed for publishing
+fprintf('Example 9, Standard Style ...\n')
+pause
+
 set(o,'style','basic');
 title('Basic Style');
-snapnow; %Only needed for publishing
+fprintf('Example 9, Basic Style ...\n')
+pause
+
 set(o,'style','minimal');
 title('Minimal Style');
-snapnow; %Only needed for publishing
+fprintf('Example 9, Minimal Style ...\n')
+
+end
 
 %% Transform coordinate Systems
 % The carpetpot class has three build in functions to draw hatchedlines,
 % line plots, and filled contours into the a b coordinate systems. If there
 % are other plots needed it is possible to transform any vectors or
 % matrixes into the carpet plot's coordinate system
+function example10()
 
-
-%%
-%
 x = linspace(-0.5,10,200);
 rng(0,'twister');
 y = 10*cos(x)+ rand(1,200)+20;
@@ -297,7 +323,8 @@ y = 10*cos(x)+ rand(1,200)+20;
 hold off;
 scatter(x,y)
 title('Scatter Plot in the XY coordinate system');
-snapnow; %Only needed for publishing
+fprintf('Example 10, scatter plot ...\n')
+pause
 
 a = linspace(-.5,10,5);
 b = linspace(-1,40,4);
@@ -316,16 +343,14 @@ hatchedline(o,linspace(-.5,10,5),ones(1,5)*32,'r-',-45);
 hatchedline(o,linspace(-.5,10,5),ones(1,5)*10,'g-',45);
 plot(o,linspace(-.5,10,5),ones(1,5)*20,'b:');
 
-snapnow; %Only needed for publishing
-
+fprintf('Example 10, scatter on carpet plot ...\n')
+end
 
 %% Constraint Plot with fixed Weight trade study 
 % This is a constraint plot common in aircraft design. The fixed weights of
 % planes with different Wingloading [W/S] and Thrust/Weight-Ration [T/W] had been
 % take in into account. The data was created using spreadsheet calculation.
-
-clear;
-clf;
+function example11()
 
 % Weight Estimations for different T/W and W/S
 TW =  [0.1000    0.1200    0.1500    0.2000    0.2500    0.3000    0.1000    0.1200    0.1500    0.2000    0.2500 0.3000    0.1000    0.1200    0.1500    0.2000    0.2500    0.3000];
@@ -345,8 +370,6 @@ WS_secondSeg =[60    70    80    90   100   120   130   140   150];
 % Create the object and plot it
 o = CarpetPlot(TW,WS,G0);
 
-
-
 %Add some labels
 alabel(o,'T/W');
 blabel(o,'W/S [lb/ft²]');
@@ -355,19 +378,21 @@ ylabel('G0 [lb]');
 set(o,'curveFitting','pchip','bLabelSpacing',0.2);
 
 hold on;
-LandConstr = hatchedline(o,TW_Land,WS_Land,'r-');
-TakeOffConstr = hatchedline(o,TW_takeoff,WS_takeoff,'g-');
-secSegmentConstr = hatchedline(o,TW_secondSeg,WS_secondSeg,'y-');
-CruiseConstr = hatchedline(o,TW_Cruise,WS_Cruise,'b-',-120);
+hatchedline(o,TW_Land,WS_Land,'r-');
+hatchedline(o,TW_takeoff,WS_takeoff,'g-');
+hatchedline(o,TW_secondSeg,WS_secondSeg,'y-');
+hatchedline(o,TW_Cruise,WS_Cruise,'b-',-120);
+
 o.showpoint(0.25,105);
 
+fprintf('Example 11 ...\n')
+end
 
 %% Contourf Plot
+function example12()
 % This example uses the simple |peaks()| contour and the fill style for a
 % constraint
 
-clear;
-clf;
 % Generate some Input Data
 a =[1;2;3;1;2;3];
 b =[10;10;10;30;30;30];
@@ -386,10 +411,20 @@ hold on;
 contourf(plotObject,1:0.1:3,10:1:30,peaks(21));
 
 % Add some Constraints
-const = constraint(plotObject,'y<60 ','fill',[0.3 0.3 0.3]);
-const = constraint(plotObject,'y>20','hatchedline','r-',45);
+try
+    constraint(plotObject,'y<60 ','fill',[0.3 0.3 0.3]);
+    constraint(plotObject,'y>20','hatchedline','r-',45);
+catch ME
+    switch ME.identifier
+        case 'MATLAB:UndefinedFunction'
+            warning('Undefined function in Example 12.\n')
+            warning('This usually means no license for Matlab solve.');
+        otherwise
+            rethrow(ME)
+    end
+end
 
 showpoint(plotObject,2,16);
 
-% Move the label a little bit
-snapnow; %Only needed for publishing
+fprintf('Example 12 ...\n')
+end
