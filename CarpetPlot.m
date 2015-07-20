@@ -886,6 +886,12 @@ methods
         
     end
     
+    %% Function prototypes
+    alabel( self, text )
+    blabel( self, text )
+    refresh( varargin )
+    inputdata( self, varargin )
+
     %% Set and Get Functions
     % These functions do some checks before saving the input values.
     % In addition, they change needPlotrefresh and needTextRefresh to
@@ -1479,151 +1485,6 @@ methods
         function ret = get.zValue(obj)         
             ret = obj.z;
         end
-         
-        
-    function inputdata(obj,varargin)
-        % INPUTDATA changes the input of the carpet plot without changing
-        % properties that have been set before.
-        % 
-        %   INPUTDATA(obj,a,b,x,y) sets the input of four variable carpet plots.
-        %
-        %   INPUTDATA(obj,a,b,x,y,z) sets the input of four variable carpet plots
-        %   including the z coordinate.
-        %
-        %   INPUTDATA(obj,a,b,y) sets the input of three variable carpet plots.
-        %
-        %   INPUTDATA(obj,a,b,y,z) sets the input of three variable carpet plots
-        %   including the z coordinate.
-        %
-        
-        if nargin < 4
-            error('Wrong number of input arguments');
-        end
-        
-        % Assign a,b,x and/or y with same orientation
-        a = varargin{1};
-        b = varargin{2};        
-        if isvector(a)
-            a = a(:);
-        end
-        if isvector(b)
-            b = b(:);
-        end
-        if isvector(varargin{3})
-                varargin{3} = varargin{3}(:);
-        end
-        if (nargin > 4) && isvector(varargin{4})
-                varargin{4} = varargin{4}(:);
-        end
-        
-        % If no scattered data --> convert a and b to a meshgrid
-        if ~isvector(varargin{3}) && (isvector(a) ==1 && isvector(b) ==1)
-                [a,b] = meshgrid(a,b);
-        end
-        
-        
-        % Argument Check: What kind of Plot? - Assign Z Value
-        if nargin < 5               % Cheater Plot no Z value
-            obj.type = 3;
-            obj.z = 0;
-        elseif nargin < 6           % Cheater or Real?
-            if isscalar(varargin{4})
-                obj.type = 3;       % Cheater with Z Coordinate
-                obj.z = varargin{4};
-            else
-                obj.type = 4;       % Real Plot
-                obj.z = 0;
-            end
-        elseif nargin < 7           % Real Plot with Z value
-            obj.type = 4;
-            obj.z = varargin{5};
-        end
-        
-        
-        if obj.type == 3;    % Cheater Plot: Calculate the X-Axis
-                stepA = (max(obj.axis{1}.interval(:))-min(obj.axis{1}.interval(:)))/(size(obj.axis{1}.interval(:),1)-1);  
-                stepB = (max(obj.axis{2}.interval(:))-min(obj.axis{2}.interval(:)))/(size(obj.axis{2}.interval(:),1)-1);
-                obj.pK2 = stepA/stepB;  
-                obj.pK1 = 1; 
-                x = obj.pK0 + obj.pK1.*a+obj.pK2.*b;
-                y = varargin{3};
-        else                % Real carpet plot: Assign x and y values
-                x = varargin{3};
-                y = varargin{4};
-        end
-        
-
-        if ~isvector(x) % Input is a Matrix
-            obj.inputMatrixA = a;
-            obj.inputMatrixB = b;
-            obj.inputMatrixX = x;
-            obj.inputMatrixY = y;
-        else % Input is scattered data: Interpolate X and Y with Griddedinterpolant
-            [obj.inputMatrixA,obj.inputMatrixB] = meshgrid(unique(a),unique(b));
-            scatteredX = TriScatteredInterp(a,b,x);
-            scatteredY = TriScatteredInterp(a,b,y);
-            obj.inputMatrixX = scatteredX(obj.inputMatrixA,obj.inputMatrixB);
-            obj.inputMatrixY = scatteredY(obj.inputMatrixA,obj.inputMatrixB);
-        end
-        
-        % Test for a better visualization and change the AB directions of
-        % the cheater plot. There must be another way doing this?!
-            if (obj.type==3)
-          
-                % Interpolate input data if there are Nans. Otherwise I
-                % cannot calculate the area.
-                if sum(isnan(obj.inputMatrixY(:))) > 0
-                   iDataY = obj.inputMatrixY;
-                   iDataY( :, all(isnan(iDataY), 1)) = [];
-                   iDataY(all(isnan(iDataY), 2), :) = [];
-
-                   reSized=interp1(iDataY,linspace(1,size(iDataY,1),size(iDataY,1)),'spline');
-                   reSized=interp1(reSized.',linspace(1,size(iDataY,2),size(iDataY,2)),'spline').';
-                   iDataY = reSized;
-                else
-                   iDataY = obj.inputMatrixY;
-                end
-                
-                
-                area = zeros(3,2);
-
-                area(2,1) = obj.pK1;
-                area(3,1) = obj.pK2;
-                
-                area(1,1) = polyarea([obj.inputMatrixX(1,1) obj.inputMatrixX(1,end) obj.inputMatrixX(end,end) obj.inputMatrixX(end,1)],[iDataY(1,1) iDataY(1,end) iDataY(end,end) iDataY(end,1)]);
-                obj.pK1 = -obj.pK1;
-                
-                obj.inputMatrixX = obj.pK0 + obj.pK1.*obj.inputMatrixA+obj.pK2.*obj.inputMatrixB;
-                
-                area(2,2) = obj.pK1;
-                area(3,2) = obj.pK2;
-                area(1,2) = polyarea([obj.inputMatrixX(1,1) obj.inputMatrixX(1,end) obj.inputMatrixX(end,end) obj.inputMatrixX(end,1)],[iDataY(1,1) iDataY(1,end) iDataY(end,end) iDataY(end,1)]);
-                
-                area = sortrows(area.',1).';
-
-                obj.pK1 = area(2,2);
-                obj.pK2 = area(3,2);
-                
-                if (obj.pK1 <0) && (obj.pK2 <0)
-                    obj.pK1 = abs(obj.pK1);
-                    obj.pK2 = abs(obj.pK2);
-                end
-                
-                obj.inputMatrixX = obj.pK0 + obj.pK1.*obj.inputMatrixA+obj.pK2.*obj.inputMatrixB;
-            end
-            
-            % All infs must be converted to Nans
-            obj.inputMatrixX(obj.inputMatrixX == inf) = NaN;
-            obj.inputMatrixY(obj.inputMatrixY == inf) = NaN;
-            
-            % If the carpet was ploted before --> refresh the plot
-            if ~isempty(obj.plotDataY)
-               obj.refreshplot;
-               obj.refreshlabels;
-            end
-           
-            
-    end
     
     function cplot(obj)
         % CPLOT as a public method is obsolet. It was used in previous versions
@@ -3360,17 +3221,16 @@ end
 methods(Static)
     [h, yy, zz] = arrow( varargin )
     h = hatchedlinefcn( xc, yc, linespec, theta, ar, spc, len, varargin )
-    
+
     function refreshmultiplelabels(varargin)
-        
         for n = 1 : size(varargin,2)
-                if isobject(varargin{n})
-                   varargin{n}.refresh('textrotation');
-                end
+            if isobject(varargin{n})
+                varargin{n}.refresh('textrotation');
+            end
         end
-        
     end
-    
+
+    examples()
 end
 
 end
