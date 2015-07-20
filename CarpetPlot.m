@@ -892,6 +892,7 @@ methods
     refresh( varargin )
     inputdata( self, varargin )
     cplot( self )
+    label( self, varargin )
 
     %% Set and Get Functions
     % These functions do some checks before saving the input values.
@@ -1561,34 +1562,6 @@ methods
         else
            error([num2str(param) ' is not a carpet plot property']) 
         end
-    end
-    
-    function label(obj,varargin)
-    % LABEL adds labels to the a- and b-axis.
-    %
-    %  LABEL(obj) adds the labels with a default string.
-    %
-    %  LABEL(obj,str1) adds the a-label with the defined str1 value.
-    %
-    %  LABEL(obj,str1,str2) adds the a-label with the defined str1 parameter
-    %                       and the b-label with the str2 parameter.
-    %
-    % See Also: carpetplot.alabel, carpetplot.blabel, carpetplot.label
-    %     
-        
-        obj.instanceName = inputname(1);
-        
-        if nargin > 2
-            obj.axis{1}.label = varargin{1};
-            obj.axis{2}.label = varargin{2};
-        elseif nargin > 1
-            obj.axis{1}.label = varargin{1};
-        end
-        
-        obj.plabel(1);
-        obj.plabel(2);
-        
-        obj.needRelabel = 0;
     end
     
     function zlabel(obj,varargin)
