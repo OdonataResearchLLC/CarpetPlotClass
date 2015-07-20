@@ -894,6 +894,7 @@ methods
     cplot( self )
     label( self, varargin )
     zlabel( self, varargin )
+    [ X, Y, dataX, dataY ] = interpAB( self, inA, inB )
     [ hLine, hPoint, hText] = ...
         drawinterpolation( self, X, Y, dataX, dataY, lineStyle)
     [ pDataX, pDataY ] = getpData( self )
@@ -2739,46 +2740,14 @@ methods (Access = private)
             maskFull = 0;
         end    
         
-    end
-      
-    
-    function [X,Y,dataX,dataY] = interpAB(obj,inA,inB)
-        if strcmp(obj.curvefitting,'elinear') || ...
-                strcmp(obj.curvefitting,'epchip') || ...
-                strcmp(obj.curvefitting,'espline') %%% 2013-05-21/Sartorius: added || and extra line break
-            [aaa,bbb] = meshgrid(inA,linspace(min(obj.axis{2}.interval),max(obj.axis{2}.interval),100));
-        else
-            [aaa,bbb] = meshgrid(inA,[obj.axis{2}.interval]);
-        end
-        
-        X = interp2(obj.inputMatrixA,obj.inputMatrixB,obj.inputMatrixX,inA,inB,obj.dataFitting);
-        Y = interp2(obj.inputMatrixA,obj.inputMatrixB,obj.inputMatrixY,inA,inB,obj.dataFitting);
-        
-        dataX = [{} {}];
-        dataY = [{} {}];
-        
-        for n = 1:2
-            xxx = interp2(obj.inputMatrixA,obj.inputMatrixB,obj.inputMatrixX,aaa,bbb,obj.dataFitting);
-            yyy = interp2(obj.inputMatrixA,obj.inputMatrixB,obj.inputMatrixY,aaa,bbb,obj.dataFitting);
-            dataX{n} = xxx;
-            dataY{n} = yyy;
-            
-            if strcmp(obj.curvefitting,'elinear') || ...
-                    strcmp(obj.curvefitting,'epchip') || ...
-                    strcmp(obj.curvefitting,'espline') %%% 2013-05-21/Sartorius: added || and extra line break
-                [aaa,bbb] = meshgrid(linspace(min(obj.axis{1}.interval),max(obj.axis{1}.interval),100),inB);
-            else
-                [aaa,bbb] = meshgrid(obj.axis{1}.interval,inB);
-            end
-        end     
     end    
 end
-     
+
 methods(Static)
     [h, yy, zz] = arrow( varargin )
     h = hatchedlinefcn( xc, yc, linespec, theta, ar, spc, len, varargin )
 
-    function refreshmultiplelabels(varargin)
+    function refreshmultiplelabels( varargin )
         for n = 1 : size(varargin,2)
             if isobject(varargin{n})
                 varargin{n}.refresh('textrotation');
