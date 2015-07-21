@@ -256,7 +256,7 @@ set(o3,'k0',40,'style','standard')
 
 alabel(o3); blabel(o1);
 
-lLines = lattice(o1,o2,o3,'lines');
+lLines = o3.lattice(o1,o2,o3,'lines');
 set(lLines,'LineWidth',0.5);
 
 fprintf('Example 8 ...\n')
