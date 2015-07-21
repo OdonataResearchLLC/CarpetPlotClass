@@ -199,22 +199,22 @@ classdef CarpetPlot < handle
         cf        % Plot's Figure handle
     end
 
-properties(Dependent, SetAccess = private, GetAccess = public)    
-    
+    properties (Dependent, SetAccess = private, GetAccess = public)
         % ALINES provides the line handles of the a-axis.
         %
-        % Use these handles to further customize the plot. But note that the
-        % changes might be lost if the plot gets updated by other methods.
+        % Use these handles to further customize the plot. But note that
+        % the changes might be lost if the plot gets updated by other
+        % methods.
         %
         % See also: carpetplot.blines, carpetplot.style
         %
         alines
-        
+
         % BLINES provides the line handles of the b-axis.
         %
-        % Use these handles to further customize the plot. But note that the
-        % changes might be lost if the plot gets updated by other methods.
-        %
+        % Use these handles to further customize the plot. But note that
+        % the changes might be lost if the plot gets updated by other
+        % methods.
         %
         blines
         
@@ -222,8 +222,9 @@ properties(Dependent, SetAccess = private, GetAccess = public)
         % lines. These lines only appear if there are NaNs or infs in your
         % data.
         %
-        % Use these handles to further customize the plot. But note that the
-        % changes might be lost if the plot gets updated by other methods.
+        % Use these handles to further customize the plot. But note that
+        % the changes might be lost if the plot gets updated by other
+        % methods.
         %
         %
         aextraplines
@@ -231,113 +232,124 @@ properties(Dependent, SetAccess = private, GetAccess = public)
         % EXTRAPLINES provides the line handles of the extrapolated lines.
         % These lines only appear if there are NaNs or infs in your data.
         %
-        % Use these handles to further customize the plot. But note that the
-        % changes might be lost if the plot gets updated by other methods.
-        %
+        % Use these handles to further customize the plot. But note that
+        % the changes might be lost if the plot gets updated by other
+        % methods.
         %
         extraplines
-        
+
         % BEXTRAPLINES provides the line handles of the b-axis extrapolated
         % lines. These lines only appear if there are NaNs or inf's in your
         % data.
         %
-        % Use these handles to further customize the plot. But note that the
-        % changes might be lost if the plot gets updated by other methods.
+        % Use these handles to further customize the plot. But note that
+        % the changes might be lost if the plot gets updated by other
+        % methods.
         %
         % See also: carpetplot.alines, carpetplot.style
         %
         bextraplines
-        
+
         % LINES provides the line handles.
         %
-        % Use these handles to further customize the plot. But note that the
-        % changes might be lost if the plot gets updated by other methods.
+        % Use these handles to further customize the plot. But note that
+        % the changes might be lost if the plot gets updated by other
+        % methods.
         %
         % See also: carpetplot.alines, carpetplot.blines
         %
         lines
-        
+
         % AMARKERS provides the line handles of the markers of the a-axis.
         %
-        % Use these handles to further customize the plot. But note that the
-        % changes might be lost if the plot gets updated by other methods.
+        % Use these handles to further customize the plot. But note that
+        % the changes might be lost if the plot gets updated by other
+        % methods.
         %
         % See also: carpetplot.bmarkers, carpetplot.style
         %
         amarkers
-        
+
         % BMARKERS provides the line handles of the markers of the b-axis.
         %
-        % Use these handles to further customize the plot. But note that the
-        % changes might be lost if the plot gets updated by other methods.
+        % Use these handles to further customize the plot. But note that
+        % the changes might be lost if the plot gets updated by other
+        % methods.
         %
         % See also: carpetplot.amarkers, carpetplot.style
         %
         bmarkers
-        
+
         % MARKERS provides the line handles of the markers.
         %
-        % Use these handles to further customize the plot. But note that the
-        % changes might be lost if the plot gets updated by other methods.
+        % Use these handles to further customize the plot. But note that
+        % the changes might be lost if the plot gets updated by other
+        % methods.
         %
         % See also: carpetplot.amarkers, carpetplot.bmarkers
         %
         markers
-        
+
         % ALABELTEXT provides the handle of the a-axis label.
         %
-        % Use these handles to further customize the plot. But note that the
-        % changes might be lost if the plot gets updated by other methods.
+        % Use these handles to further customize the plot. But note that
+        % the changes might be lost if the plot gets updated by other
+        % methods.
         %
         % See also: carpetplot.blabel, carpetplot.style
         %
         alabeltext
-        
+
         % BLABELTEXT provides the handle of the b-axis label.
         %
-        % Use these handles to further customize the plot. But note that the
-        % changes might be lost if the plot gets updated by other methods.
+        % Use these handles to further customize the plot. But note that
+        % the changes might be lost if the plot gets updated by other
+        % methods.
         %
         % See also: carpetplot.alabel, carpetplot.style
         %
         blabeltext
-        
+
         % LABELS provides the handle of the axis labels.
         %
-        % Use these handles to further customize the plot. But note that the
-        % changes might be lost if the plot gets updated by other methods.
+        % Use these handles to further customize the plot. But note that
+        % the changes might be lost if the plot gets updated by other
+        % methods.
         %
         % See also: carpetplot.alabel, carpetplot.blabel
         %
         labels
-        
+
         % AARROW provides the handle of the a-arrow.
         %
-        % Use these handles to further customize the plot. But note that the
-        % changes might be lost if the plot gets updated by other methods.
+        % Use these handles to further customize the plot. But note that
+        % the changes might be lost if the plot gets updated by other
+        % methods.
         %
         % See also: carpetplot.barrow, carpetplot.style
         %
         aarrow
-        
+
         % BARROW provides the handle of the b-arrow.
         %
-        % Use these handles to further customize the plot. But note that the
-        % changes might be lost if the plot gets updated by other methods.
+        % Use these handles to further customize the plot. But note that
+        % the changes might be lost if the plot gets updated by other
+        % methods.
         %
         % See also: carpetplot.barrow, carpetplot.style
         %
         barrow
-        
+
         % ARROWS provides the handle of the arrows.
         %
-        % Use these handles to further customize the plot. But note that the
-        % changes might be lost if the plot gets updated by other methods.
+        % Use these handles to further customize the plot. But note that
+        % the changes might be lost if the plot gets updated by other
+        % methods.
         %
         % See also: carpetplot.aarrow, carpetplot.barrow
         %
         arrows
-        
+
         % ATEXT provides the handle of the a-labels.
         %
         % Use this handle to further customize the plot. But note that the
@@ -346,7 +358,7 @@ properties(Dependent, SetAccess = private, GetAccess = public)
         % See also: carpetplot.btext, carpetplot.style
         %
         atext
-        
+
         % BTEXT provides the handle of the b-labels.
         %
         % Use this handle to further customize the plot. But note that the
@@ -355,7 +367,7 @@ properties(Dependent, SetAccess = private, GetAccess = public)
         % See also: carpetplot.atext, carpetplot.style
         %
         btext
-        
+
         % TEXT provides the handle of the labels.
         %
         % Use this handle to further customize the plot. But note that the
@@ -363,8 +375,8 @@ properties(Dependent, SetAccess = private, GetAccess = public)
         %
         % See also: carpetplot.atext, carpetplot.btext
         %
-        text        
-        
+        text
+
         % ZLABELTEXT provides the handle of the z-label.
         %
         % Use this handle to further customize the plot. But note that the
@@ -373,11 +385,7 @@ properties(Dependent, SetAccess = private, GetAccess = public)
         % See also: carpetplot.label
         %
         zlabeltext
-        
-        
-        
-        
-end
+    end
 
 properties(Dependent, SetAccess = public, GetAccess = public)
 
