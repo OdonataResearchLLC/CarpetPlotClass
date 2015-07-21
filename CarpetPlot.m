@@ -1721,71 +1721,70 @@ classdef CarpetPlot < handle
             obj.plabel(2);
         end
     end
-
-%% Private function prototypes
-methods (Access = private)
-    ret = checkXYPoints( self, X, Y )
-    cplot( self )
-    [ hLine, hPoint, hText] = ...
-        drawinterpolation( self, X, Y, dataX, dataY, lineStyle)
-    inputdata( self, varargin )
-    [ maskFull, maskPlot ] = getConstrMask( self, constFunc )
-    [ pDataX, pDataY ] = getpData( self )
-    [ X, Y, dataX, dataY ] = interpAB( self, inA, inB )
-    outObj = interpolateplot( varargin )
-    plabel( self, nAxis, varargin )
-    zlabel( self, varargin )
-    refreshlabels( self, varargin )
-    refreshplot( self )
-    settick( self, value, axis )
-    [ x, y ] = transformtoxy( self, A, B, force )
-
-    function newax = holdon(obj)
-        % Keep Hold On Hold Off funcionality            
-        if ishold == 0
-          clf(gcf);
-          obj.plotholding = 0;
-          newax = 1;
-          hold on;
-        else
-          obj.plotholding = 1;
-          if isempty(get(gcf,'CurrentAxes'))
-            newax = 1;  
-          else
-            newax=0;
-          end          
+    
+    %% Private function prototypes
+    methods (Access = private)
+        ret = checkXYPoints( self, X, Y )
+        cplot( self )
+        [ hLine, hPoint, hText] = ...
+            drawinterpolation( self, X, Y, dataX, dataY, lineStyle)
+        inputdata( self, varargin )
+        [ maskFull, maskPlot ] = getConstrMask( self, constFunc )
+        [ pDataX, pDataY ] = getpData( self )
+        [ X, Y, dataX, dataY ] = interpAB( self, inA, inB )
+        outObj = interpolateplot( varargin )
+        plabel( self, nAxis, varargin )
+        zlabel( self, varargin )
+        refreshlabels( self, varargin )
+        refreshplot( self )
+        settick( self, value, axis )
+        [ x, y ] = transformtoxy( self, A, B, force )
+        
+        function newax = holdon(obj)
+            % Keep Hold On Hold Off funcionality
+            if ishold == 0
+                clf(gcf);
+                obj.plotholding = 0;
+                newax = 1;
+                hold on;
+            else
+                obj.plotholding = 1;
+                if isempty(get(gcf,'CurrentAxes'))
+                    newax = 1;
+                else
+                    newax=0;
+                end
+            end
+            
         end
         
-    end
-    
-    function deleteHandle(~,handle)
-        if ~isempty(handle) && ishandle(handle) && handle ~= 0;
-            delete(handle);
+        function deleteHandle(~,handle)
+            if ~isempty(handle) && ishandle(handle) && handle ~= 0;
+                delete(handle);
+            end
         end
-    end
-    
-    function holdoff(obj)        
-        if obj.plotholding == 0
-            hold off
-        end       
-    end
-end
-
-%% Static function prototypes
-methods(Static)
-    [h, yy, zz] = arrow( varargin )
-    h = hatchedlinefcn( xc, yc, linespec, theta, ar, spc, len, varargin )
-    hLines = lattice( varargin )
-
-    function refreshmultiplelabels( varargin )
-        for n = 1 : size(varargin,2)
-            if isobject(varargin{n})
-                varargin{n}.refresh('textrotation');
+        
+        function holdoff(obj)
+            if obj.plotholding == 0
+                hold off
             end
         end
     end
-    % Example functions to test the class
-    examples()
-end
 
+    %% Static function prototypes
+    methods(Static)
+        [h, yy, zz] = arrow( varargin )
+        h = hatchedlinefcn( xc, yc, linespec, theta, ar, spc, len, varargin )
+        hLines = lattice( varargin )
+        
+        function refreshmultiplelabels( varargin )
+            for n = 1 : size(varargin,2)
+                if isobject(varargin{n})
+                    varargin{n}.refresh('textrotation');
+                end
+            end
+        end
+        % Example functions to test the class
+        examples()
+    end
 end
