@@ -387,9 +387,8 @@ classdef CarpetPlot < handle
         zlabeltext
     end
 
-properties(Dependent, SetAccess = public, GetAccess = public)
-
-        % ATEXTFLIPPED defines if the a-axis values will be drawn on the 
+    properties (Dependent, SetAccess = public, GetAccess = public)
+        % ATEXTFLIPPED defines if the a-axis values will be drawn on the
         % other side of the plot.
         %
         %   0     -     standard
@@ -399,7 +398,7 @@ properties(Dependent, SetAccess = public, GetAccess = public)
         %
         atextflipped
         
-        % BTEXTFLIPPED defines if the b-axis values will be drawn on the 
+        % BTEXTFLIPPED defines if the b-axis values will be drawn on the
         % other side of the plot.
         %
         %   0     -     standard
@@ -409,17 +408,17 @@ properties(Dependent, SetAccess = public, GetAccess = public)
         %
         btextflipped
         
-        % AARROWFLIPPED defines if the a-axis arrow will be drawn on the 
+        % AARROWFLIPPED defines if the a-axis arrow will be drawn on the
         % other side of the plot.
         %
         %   0     -     standard
         %   1     -     flipped
         %
-        % See also: carpetplot.alabel, carpetplot.aarrowflipped 
+        % See also: carpetplot.alabel, carpetplot.aarrowflipped
         %
         aarrowflipped
         
-        % BARROWFLIPPED defines if the b-axis arrow will be drawn on the 
+        % BARROWFLIPPED defines if the b-axis arrow will be drawn on the
         % other side of the plot.
         %
         %   0     -     standard
@@ -429,17 +428,17 @@ properties(Dependent, SetAccess = public, GetAccess = public)
         %
         barrowflipped
         
-        % ALABELFLIPPED defines if the a-axis label will be drawn on the 
+        % ALABELFLIPPED defines if the a-axis label will be drawn on the
         % other side of the plot.
         %
         %   0     -     standard
         %   1     -     flipped
         %
-        % See also: carpetplot.alabel, carpetplot.blabelflipped 
+        % See also: carpetplot.alabel, carpetplot.blabelflipped
         %
         alabelflipped
         
-        % BLABELFLIPPED defines if the b-axis label will be drawn on the 
+        % BLABELFLIPPED defines if the b-axis label will be drawn on the
         % other side of the plot.
         %
         %   0     -     standard
@@ -448,9 +447,8 @@ properties(Dependent, SetAccess = public, GetAccess = public)
         % See also: carpetplot.blabel, carpetplot.blabelflipped
         %
         blabelflipped
- 
+        
         % ASUFFIX defines a prefix for the a-axis values.
-        %
         %
         % See also: carpetplot.alabel, carpetplot.prefixA carpetplot.suffixA
         %
@@ -458,13 +456,11 @@ properties(Dependent, SetAccess = public, GetAccess = public)
         
         % BSUFFIX defines a prefix for the b-axis values.
         %
-        %
         % See also: carpetplot.aprefix carpetplot.asuffix
         %
         bsuffix
         
         % APREFIX defines a prefix for the a-axis values.
-        %
         %
         % See also: carpetplot.alabel, carpetplot.bprefix carpetplot.bsuffix
         %
@@ -472,15 +468,14 @@ properties(Dependent, SetAccess = public, GetAccess = public)
         
         % BPREFIX defines a prefix for the b-axis values.
         %
-        %
         % See also: carpetplot.blabel, carpetplot.aprefix carpetplot.bsuffix
         %
         bprefix
-                
+        
         % ATEXTROTATION defines if the a-axis values are being rotated.
         %
         %   0     -     no rotation
-        %   1     -     rotation according to the lines of the carpet plot  
+        %   1     -     rotation according to the lines of the carpet plot
         %
         % See also: carpetplot.alabel, carpetplot.btextRotation
         %
@@ -489,37 +484,37 @@ properties(Dependent, SetAccess = public, GetAccess = public)
         % BTEXTROTATION defines if the b-axis values are being rotated.
         %
         %   0     -     no rotation
-        %   1     -     rotation according to the lines of the carpet plot 
+        %   1     -     rotation according to the lines of the carpet plot
         %
         % See also: carpetplot.blabel, carpetplot.atextRotation
         %
         btextrotation
-                
+        
         % ATEXTSPACING inserts white spaces between the values of the a-axis
-        % of the carpet plot and the plot itself. 
+        % of the carpet plot and the plot itself.
         %
         % Negative values will add white spaces on the other side
-        % of the text. 
+        % of the text.
         %
         % See also: carpetplot.btextSpacing, carpetplot.alabel
         %
         atextspacing
         
         % BTEXTSPACING inserts white spaces between the values of the b-axis
-        % of the carpet plot and the plot itself. 
+        % of the carpet plot and the plot itself.
         %
         % Negative values will add white spaces on the other side
-        % of the text. 
+        % of the text.
         %
         % See also: carpetplot.atextspacing, carpetplot.blabel
         %
         btextspacing
-                
+        
         % ALABELSPACING controls the distance between the a-label arrow and
         % the carpetplot.
         %
         %   0     -     no spacing at all
-        %   1     -     base for spacing is the complete width of the carpet plot 
+        %   1     -     base for spacing is the complete width of the carpet plot
         %
         % See also: carpetplot.blabelspacing, carpetplot.alabel
         %
@@ -529,7 +524,7 @@ properties(Dependent, SetAccess = public, GetAccess = public)
         % the carpet plot.
         %
         %   0     -     no spacing at all
-        %   1     -     base for spacing is the complete width of the carpet plot 
+        %   1     -     base for spacing is the complete width of the carpet plot
         %
         % See also: carpetplot.alabelspacing, carpetplot.alabel
         %
@@ -539,7 +534,7 @@ properties(Dependent, SetAccess = public, GetAccess = public)
         % the carpet plot.
         %
         %   0     -     no spacing at all
-        %   1     -     base for spacing is the complete width of the carpet plot 
+        %   1     -     base for spacing is the complete width of the carpet plot
         %
         % See also: carpetplot.blabelspacing, carpetplot.alabel
         %
@@ -578,16 +573,16 @@ properties(Dependent, SetAccess = public, GetAccess = public)
         
         % CURVEFITTING controls the interpolation method of the data.
         %
-        % There are different styles that can be used. 
+        % There are different styles that can be used.
         %
         %   'linear'    -   Linear interpolation. Default method for less
-        %                   than 15 Data Points 
+        %                   than 15 Data Points
         %   'spline'    -   Spline interpolation.
         %   'pchip'     -   Piecewise cubic interpolation.
-        %   'epchip'    -   Exact piecewise cubic interpolation. 
+        %   'epchip'    -   Exact piecewise cubic interpolation.
         %   'espline'   -   Exact spline interpolation
-        %   'elinear'   -   Exact linear interpolation. Default method for 
-        %                   more than 15 Data Points 
+        %   'elinear'   -   Exact linear interpolation. Default method for
+        %                   more than 15 Data Points
         %
         %   'linear', 'spline', and 'pchip' use the specified method to
         %   find carpet intersections based on the input data. The input
@@ -597,27 +592,28 @@ properties(Dependent, SetAccess = public, GetAccess = public)
         %   input data for interpolating the carpet lines.
         %
         %   See also: spline, pchip
+        %
         curvefitting
         
         % ATICK controls the intervals of the a-axis.
         % The property a tick controls the interval of the a-axis.
         %
         % An array with the respective values is the required input. Extrapolation
-        % is not possible. In consequence, there will be an error message 
+        % is not possible. In consequence, there will be an error message
         % if the ticks are out of range of the input data.
         %
         % See also carpetplot.bTick
-        % 
+        %
         atick
         
         % BTICK controls the intervals of the b-axis.
         % The property b tick controls the interval of the b-axis.
         %
         % An array with the respective values is the required input. Extrapolation
-        % is not possible. In consequence, there will be an error message 
+        % is not possible. In consequence, there will be an error message
         % if the ticks are out of range of the input data.
         %
-        % See also carpetplot.aTick  
+        % See also carpetplot.aTick
         %
         btick
         
@@ -627,7 +623,7 @@ properties(Dependent, SetAccess = public, GetAccess = public)
         % b-axis.
         %
         % The x values are calculated by the following equation:
-        % 
+        %
         %   x = K0 + a*K1 + b*K2
         %
         % See also: carpetplot.k2 carpetplot.k1
@@ -640,7 +636,7 @@ properties(Dependent, SetAccess = public, GetAccess = public)
         % b-axis.
         %
         % The x values are calculated by the following equation:
-        % 
+        %
         %   x = K0 + a*K1 + b*K2
         %
         % See also: carpetplot.k2 carpetplot.k0
@@ -653,7 +649,7 @@ properties(Dependent, SetAccess = public, GetAccess = public)
         % b-axis.
         %
         % The x values are calculated by the following equation:
-        % 
+        %
         %   x = K0 + a*K1 + b*K2
         %
         % See also: carpetplot.k1 carpetplot.k2
@@ -661,9 +657,9 @@ properties(Dependent, SetAccess = public, GetAccess = public)
         k2
         
         % STYLE changes the appereance of the plot.
-        % 
+        %
         % The style of the plot can be changed individually or a predefined style
-        % can be used. 
+        % can be used.
         %
         % Style argument options:
         %
@@ -671,9 +667,9 @@ properties(Dependent, SetAccess = public, GetAccess = public)
         %   'standard' -   Rotated labels and an arrow to indicate the axis.
         %   'clean'    -   Rotated labels but no arrows.
         %   'basic'    -   A style with no labels for the a- or b-axis but a prefix
-        %                  for the labels. 
+        %                  for the labels.
         %   'minimal'  -   Minimal style.
-        % 
+        %
         style
         
         % ZALIGNEMENT controls the position of the z-label.
@@ -693,8 +689,9 @@ properties(Dependent, SetAccess = public, GetAccess = public)
         % See also: carpetplot.interpplot
         %
         zValue
-    
-end
+        
+    end
+
 properties (Access = private)
 
 %Constants
