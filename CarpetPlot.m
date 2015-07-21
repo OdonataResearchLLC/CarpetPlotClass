@@ -1,6 +1,6 @@
 classdef CarpetPlot < handle
-    
     % CARPETPLOT is a class for creating carpet plots and cheater plots.
+    %
     %   Carpet plots are a way to illustrate three (Fig. 2) or four (Fig. 1)
     %   variables in an easy to read two dimensional plot. The carpet plot
     %   class offers the possiblity to handle different input data, add labels,
@@ -193,21 +193,11 @@ classdef CarpetPlot < handle
     %       - Fixed automated label rotation (on resize, reverse axis, and log)
     %       - Updated help block (Suggestions by Sky Sartorious)
     
-     
-    
-    
-properties (Access = public)
-
-% Variable for debug mode
-debugging
-
-%Plot's axis
-ca
-
-%Plot's Figure handle
-cf
-
-end  
+    properties (Access = public)
+        debugging % Variable for debug mode
+        ca        % Plot's axis
+        cf        % Plot's Figure handle
+    end
 
 properties(Dependent, SetAccess = private, GetAccess = public)    
     
