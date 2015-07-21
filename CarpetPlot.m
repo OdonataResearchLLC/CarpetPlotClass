@@ -891,6 +891,7 @@ methods
     blabel( self, text )
     [ outArrow, outText ] = cheaterlegend( self, varargin )
     out = constraint( self, constraint, style, varargin)
+    [ c, cont ] = contourf( self, vectorA, vectorB, data, varargin )
     refresh( varargin )
 
     %% Set and Get Functions
@@ -1562,83 +1563,6 @@ methods
            error([num2str(param) ' is not a carpet plot property']) 
         end
     end
-        
-     function [c, cont] = contourf(obj,vectorA,vectorB,data,varargin)
-        % CONTOURF, used with a carpet plot object, will transform the contour
-        % to the a/b coordinate system. 
-        % 
-        % CONTOURF(obj,a,b,z,v) draws a filled contour using a and b to 
-        % determine the a and b limits. All further variables will be
-        % handed to the contourf function.
-        %  
-        % Example:
-        %
-        %   a =[1;2;3;1;2;3];
-        %   b =[10;10;10;30;30;30];
-        %   x = b-a.^3;
-        %   y = a.*b;
-        %
-        %   plotObject = carpetplot(a,b,x,y);
-        %
-        %   contourf(plotObject,1:0.1:3,10:1:30,peaks(21));
-        %
-        % See also: carpetplot.plot, carpetplot.hatchedline
-            
-            % Keep hold functionality
-            if ishold == 0
-                obj.holding = 0;
-                hold on
-            else
-                obj.holding = 1;
-            end
-        
-            % Check input
-            if ~isvector(vectorA) || ~isvector(vectorB)
-                error('Input must be vectors')
-            else
-                vectorA = vectorA(:)';
-                vectorB = vectorB(:)';
-            end
-            
-            % Get the mask to cut the edges of the contour
-            [~,maskPlot] = getConstrMask(obj,[]);
-            maskPlot(maskPlot==0) = NaN;
-           
-            %Extend matrix to contour resolution
-            [inputDataX,inputDataY] = meshgrid(vectorA,vectorB);
-            vectorA = interp1(1:size(obj.axis{1}.interval(:),1),obj.axis{1}.interval,1:(size(obj.axis{1}.interval(:),1)-1)/obj.CONTOUR_RESOLUTION:size(obj.axis{1}.interval(:),1));
-            vectorB = interp1(1:size(obj.axis{2}.interval(:),1),obj.axis{2}.interval,1:(size(obj.axis{2}.interval(:),1)-1)/obj.CONTOUR_RESOLUTION:size(obj.axis{2}.interval(:),1));
-            [aaa,bbb] = meshgrid(vectorA,vectorB);
-            %Interpolate the data points to the contour resolution
-            [dataX,dataY] = meshgrid(vectorA,vectorB);
-            data = interp2(inputDataX,inputDataY,data,dataX,dataY,obj.dataFitting);
-            xxx = interp2(obj.inputMatrixA,obj.inputMatrixB,obj.inputMatrixX,aaa,bbb,obj.dataFitting);
-            yyy = interp2(obj.inputMatrixA,obj.inputMatrixB,obj.inputMatrixY,aaa,bbb,obj.dataFitting);
-           
-            nxqq = min(xxx(:)):(max(xxx(:))-min(xxx(:)))/obj.CONTOUR_RESOLUTION:(max(xxx(:)));
-            nyqq = min(yyy(:)):(max(yyy(:))-min(yyy(:)))/obj.CONTOUR_RESOLUTION:(max(yyy(:)));
-            [xqq,yqq] = meshgrid(nxqq,nyqq);
-            
-          
-            a1 = griddata(xxx,yyy,data,xqq,yqq);
-            
-            % Multiply the matrix with the contour mask
-            a1 = a1.*maskPlot;
-            %Plot Contourf
-            if ~isempty(varargin)
-                [c,cont] = contourf(nxqq,nyqq,a1,varargin);
-            else
-                [c,cont] = contourf(nxqq,nyqq,a1);
-            end
-            
-            set(cont,'edgecolor','none');
-            
-            % Restore Hold Functionality        
-            if obj.holding == 0
-                hold off
-            end
-           
-     end
     
     function [hLines] = lattice(varargin)  
     % LATTICE transforms multiple cheater plots into one lattice plot.
