@@ -226,7 +226,6 @@ classdef CarpetPlot < handle
         % the changes might be lost if the plot gets updated by other
         % methods.
         %
-        %
         aextraplines
         
         % EXTRAPLINES provides the line handles of the extrapolated lines.
@@ -397,7 +396,7 @@ classdef CarpetPlot < handle
         % See also: carpetplot.blabel, carpetplot.btextflipped
         %
         atextflipped
-        
+
         % BTEXTFLIPPED defines if the b-axis values will be drawn on the
         % other side of the plot.
         %
@@ -407,7 +406,7 @@ classdef CarpetPlot < handle
         % See also: carpetplot.blabel, carpetplot.atextflipped
         %
         btextflipped
-        
+
         % AARROWFLIPPED defines if the a-axis arrow will be drawn on the
         % other side of the plot.
         %
@@ -417,7 +416,7 @@ classdef CarpetPlot < handle
         % See also: carpetplot.alabel, carpetplot.aarrowflipped
         %
         aarrowflipped
-        
+
         % BARROWFLIPPED defines if the b-axis arrow will be drawn on the
         % other side of the plot.
         %
@@ -427,7 +426,7 @@ classdef CarpetPlot < handle
         % See also: carpetplot.blabel, carpetplot.barrowflipped
         %
         barrowflipped
-        
+
         % ALABELFLIPPED defines if the a-axis label will be drawn on the
         % other side of the plot.
         %
@@ -764,398 +763,397 @@ classdef CarpetPlot < handle
         recentXLimits;
         recentYLimits;
     end
-    
-methods
+
+    methods
+        function obj = CarpetPlot( varargin )
+            % Set the Style to 'standard'. This fills the axis variables
+            % with certain style parameters
+            obj.style = 'default';
+
+            % Seperate the linespec from the data parameters
+            style = 0;
+            for n=1:nargin
+                if ischar(varargin{n})
+                    style = 1;
+                    break;
+                end
+            end
+
+            if style
+                linespec = varargin(n:end);
+                varargin = varargin(1:n-1);
+                obj.axis{1}.lineSpec = linespec;
+                obj.axis{2}.lineSpec = linespec;
+                obj.axis{1}.markerSpec = {'marker','none'};
+                obj.axis{2}.markerSpec = {'marker','none'};
+            end
+
+            % supress a warning if the data contains NaNs
+            warning('off','MATLAB:interp1:NaNstrip');
+            warning('off','MATLAB:chckxy:nan');
+
+            % Set 1 for debugging
+            obj.debugging = 0;
+
+            obj.recentXLimits = [0 0];
+            obj.recentYLimits = [0 0];
+
+            % Constants
+            obj.CONTOUR_RESOLUTION = 250;
+            obj.MAX_POINTS = 15;
+
+            % Set default labels: The variable input names
+            obj.needRelabel = 0;
+            if isempty(inputname(1))
+                obj.axis{1}.label = 'a axis';
+            else
+                obj.axis{1}.label = inputname(1);
+            end
+            if isempty(inputname(2))
+                obj.axis{2}.label = 'b axis';
+            else
+                obj.axis{2}.label = inputname(2);
+            end
+
+            obj.axis{1}.labelHandle = [];
+            obj.axis{2}.labelHandle = [];
+            obj.axis{1}.arrowHandle = [];
+            obj.axis{2}.arrowHandle = [];
+            obj.axis{1}.textHandles = [];
+            obj.axis{2}.textHandles = [];
+            obj.axis{1}.extrapLineHandles = [];
+            obj.axis{2}.extrapLineHandles = [];
+
+            % Set the style for the interpolations
+            obj.interpLineStyle = {
+                'LineWidth', 1.5, ...
+                'LineStyle', '--', ...
+                'Color', [0 0 1] };
+            obj.interpMarkerStyle = {
+                'Marker', 'o', ...
+                'MarkerSize', 7, ...
+                'MarkerEdgeColor', [.2 .2 .2], ...
+                'MarkerFaceColor', [0 0 1] };
+            obj.interpTextStyle = {
+                'FontSize', 9, ...
+                'FontWeight','normal', ...
+                'VerticalAlignment', 'bottom' };
+
+            % Set a default K0 value (cheater plots only)
+            obj.pK0 = 0;
+
+            % Default z alignement
+            obj.pZAlignement = 'top';
+
+            % Set the default data - and curveFitting
+            obj.dataFitting = 'linear';
+            obj.pCurveFitting = 'linear';
+
+            % Initial value for KeepTicks-->Allows Cplot to change axis limits
+            obj.keepTicks = 0;
+
+            % Set a standard interval
+            if ~isvector(varargin{3}) % If it is no scattered Data
+                obj.axis{1}.interval = unique(varargin{1});
+                obj.axis{2}.interval = unique(varargin{2});
+            else % If it is scattered use 6 Lines for A and B
+                obj.axis{1}.interval = ...
+                    min(varargin{1}(:)):(max(varargin{1}(:)) - ...
+                    min(varargin{1}(:)))/5:max(varargin{1}(:));
+                obj.axis{2}.interval = ...
+                    min(varargin{2}(:)):(max(varargin{2}(:)) - ...
+                    min(varargin{2}(:)))/5:max(varargin{2}(:));
+            end
+
+            % Limit the intervals to MAX_POINTS elements.
+            for n=1:2
+                if size(obj.axis{n}.interval(:),1) > obj.MAX_POINTS
+                    obj.axis{n}.interval = linspace( ...
+                        min(obj.axis{n}.interval(:)), ...
+                        max(obj.axis{n}.interval(:)), ...
+                        obj.MAX_POINTS);
+                    obj.pCurveFitting = 'elinear';
+                    warning('Data of Axis %d contains more than %d DataPoints. The plot will be limited to %d Lines]. \nUse Atick and BTick to set more Lines if necessary. \n If the lines don''t line up use another curve fitting method',n,obj.MAX_POINTS);
+                end
+            end
+
+            % Create the inputData matrix using inputdata
+            obj.inputdata(varargin{:});
+
+            % Plot it
+            obj.cplot
+        end
         
-    function obj = CarpetPlot(varargin)
-                
-        % Set the Style to 'standard'. This fills the axis variables with
-        % certain style parameters
-        obj.style = 'default';
+        %% Public function prototypes
+        alabel( self, text )
+        blabel( self, text )
+        [ outArrow, outText ] = cheaterlegend( self, varargin )
+        out = constraint( self, constraint, style, varargin)
+        [ c, cont ] = contourf( self, vectorA, vectorB, data, varargin )
+        refresh( varargin )
+        [ hLines, hMarkers, hText ] = showpoint( varargin )
         
-        % Seperate the linespec from the data parameters
-        style = 0;
-        for n=1:nargin
-            if ischar(varargin{n})
-                style = 1;
-                break;
+        %% Set and Get Functions
+        % These functions do some checks before saving the input values.
+        % In addition, they change needPlotrefresh and needTextRefresh to
+        % indicate if the change needs a redraw.
+
+        function ret = get.alines(obj)
+            ret = obj.axis{1}.lineHandles;
+        end
+
+        function ret = get.blines(obj)
+            ret = obj.axis{2}.lineHandles;
+        end
+
+        function ret = get.aextraplines(obj)
+            ret = obj.axis{1}.extrapLineHandles;
+        end
+
+        function ret = get.extraplines(obj)
+            ret = ...
+                [ obj.axis{1}.extrapLineHandles(:)
+                  obj.axis{2}.extrapLineHandles(:) ];
+        end
+
+        function ret = get.bextraplines(obj)
+            ret = obj.axis{2}.extrapLineHandles;
+        end
+
+        function ret = get.lines(obj)
+            ret = ...
+                [ obj.axis{1}.lineHandles(:)
+                  obj.axis{2}.lineHandles(:) ];
+        end
+        
+        function ret = get.amarkers(obj)
+            ret = obj.axis{1}.MarkerHandles;
+        end
+
+        function ret = get.bmarkers(obj)
+            ret = obj.axis{2}.MarkerHandles;
+        end
+
+        function ret = get.markers(obj)
+            ret = ...
+                [ obj.axis{1}.MarkerHandles(:)
+                  obj.axis{2}.MarkerHandles(:) ];
+        end
+
+        function ret = get.alabeltext(obj)
+            ret = obj.axis{1}.labelHandle;
+        end
+
+        function ret = get.blabeltext(obj)
+            ret = obj.axis{2}.labelHandle;
+        end
+
+        function ret = get.labels(obj)
+            ret = ...
+                [ obj.axis{1}.labelHandle(:)
+                  obj.axis{2}.labelHandle(:) ];
+        end
+
+        function ret = get.aarrow(obj)
+            ret = obj.axis{1}.arrowHandle;
+        end
+
+        function ret = get.barrow(obj)
+            ret = obj.axis{2}.arrowHandle;
+        end
+
+        function ret = get.arrows(obj)
+            ret = ...
+                [ obj.axis{1}.arrowHandle(:) 
+                  obj.axis{2}.arrowHandle(:) ];
+        end
+        
+        function ret = get.atext(obj)
+            ret = obj.axis{1}.textHandles;
+        end
+
+        function ret = get.btext(obj)
+            ret = obj.axis{2}.textHandles;
+        end
+
+        function ret = get.text(obj)
+            ret = ...
+                [ obj.axis{1}.textHandles(:)
+                  obj.axis{2}.textHandles(:) ];
+        end
+
+        function ret = get.zlabeltext(obj)
+            ret = obj.pzlabelandle;
+        end
+        
+        function set.atextflipped(obj,value)
+            if (value == 0) || (value == 1)
+                obj.axis{1}.textFlipped = value;
+                obj.needTextRefresh = 1;
+            else
+                error('ATextFlipped value must be 0 or 1')
             end
         end
-        
-        if style
-            linespec = varargin(n:end);
-            varargin = varargin(1:n-1);
-            obj.axis{1}.lineSpec = linespec;
-            obj.axis{2}.lineSpec = linespec;
-            obj.axis{1}.markerSpec = {'marker','none'};
-            obj.axis{2}.markerSpec = {'marker','none'};
+
+        function ret = get.atextflipped(obj)
+            ret = obj.axis{1}.textFlipped;
         end
-        
-        % supress a warning if the data contains NaNs
-        warning('off','MATLAB:interp1:NaNstrip');
-        warning('off','MATLAB:chckxy:nan');
-        
-        % Set 1 for debugging
-        obj.debugging = 0;
-                        
-        obj.recentXLimits = [0 0];
-        obj.recentYLimits = [0 0];
-        
-        % Constants
-        obj.CONTOUR_RESOLUTION = 250;
-        obj.MAX_POINTS = 15;
-        
-        % Set default labels: The variable input names
-        obj.needRelabel = 0;
-        if isempty(inputname(1))
-            obj.axis{1}.label = 'a axis';
-        else
-            obj.axis{1}.label = inputname(1);      
-        end
-        if isempty(inputname(2))
-            obj.axis{2}.label = 'b axis';
-        else
-            obj.axis{2}.label = inputname(2);      
-        end
-        
-        obj.axis{1}.labelHandle = [];       obj.axis{2}.labelHandle = [];
-        obj.axis{1}.arrowHandle = [];       obj.axis{2}.arrowHandle = [];
-        obj.axis{1}.textHandles = [];       obj.axis{2}.textHandles = [];
-        obj.axis{1}.extrapLineHandles = []; obj.axis{2}.extrapLineHandles = [];
-        
-        % Set the style for the interpolations
-        obj.interpLineStyle =   {       'LineWidth'         , 1.5           , ...
-                                        'LineStyle'         , '--'          , ...
-                                        'Color'             , [0 0 1]       };
-        obj.interpMarkerStyle = {       'Marker'            , 'o'           , ...
-                                        'MarkerSize'        , 7             , ...
-                                        'MarkerEdgeColor'   , [.2 .2 .2]    , ...
-                                        'MarkerFaceColor'   , [0 0 1]       };
-        obj.interpTextStyle =   {    'FontSize'          , 9                , ...
-                                     'FontWeight'        ,'normal'          , ...
-                                     'VerticalAlignment' ,'bottom'          };
-        
-        % Set a default K0 value (cheater plots only)
-        obj.pK0 = 0;
-        
-        % Default z alignement
-        obj.pZAlignement = 'top';
-        
-        % Set the default data - and curveFitting
-        obj.dataFitting = 'linear';
-        obj.pCurveFitting = 'linear';
-        
-        
-        
-              
-        % Initial value for KeepTicks-->Allows Cplot to change axis limits
-        obj.keepTicks = 0;
-        
-        % Set a standard interval 
-        if ~isvector(varargin{3}) % If it is no scattered Data
-            obj.axis{1}.interval = unique(varargin{1});
-            obj.axis{2}.interval = unique(varargin{2});
-        else % If it is scattered use 6 Lines for A and B
-            obj.axis{1}.interval = min(varargin{1}(:)):(max(varargin{1}(:))-min(varargin{1}(:)))/5:max(varargin{1}(:));
-            obj.axis{2}.interval = min(varargin{2}(:)):(max(varargin{2}(:))-min(varargin{2}(:)))/5:max(varargin{2}(:));
-        end
-        
-        % Limit the intervals to MAX_POINTS elements.
-        for n=1:2 
-            if size(obj.axis{n}.interval(:),1) > obj.MAX_POINTS
-                obj.axis{n}.interval = linspace(min(obj.axis{n}.interval(:)),max(obj.axis{n}.interval(:)),obj.MAX_POINTS);
-                obj.pCurveFitting = 'elinear';
-                warning('Data of Axis %d contains more than %d DataPoints. The plot will be limited to %d Lines]. \nUse Atick and BTick to set more Lines if necessary. \n If the lines don''t line up use another curve fitting method',n,obj.MAX_POINTS);
+
+        function set.btextflipped(obj,value)
+            if (value == 0) || (value == 1)
+                obj.axis{2}.textFlipped = value;
+                obj.needTextRefresh = 1;
+            else
+                error('BTextFlipped value must be 0 or 1')
             end
         end
-        
-        % Create the inputData matrix using inputdata
-        obj.inputdata(varargin{:});
-        
-        % Plot it
-        obj.cplot
-        
-    end
-    
-    %% Public function prototypes
-    alabel( self, text )
-    blabel( self, text )
-    [ outArrow, outText ] = cheaterlegend( self, varargin )
-    out = constraint( self, constraint, style, varargin)
-    [ c, cont ] = contourf( self, vectorA, vectorB, data, varargin )
-    refresh( varargin )
-    [ hLines, hMarkers, hText ] = showpoint( varargin )
 
-    %% Set and Get Functions
-    % These functions do some checks before saving the input values.
-    % In addition, they change needPlotrefresh and needTextRefresh to
-    % indicate if the change needs a redraw.
-    
-    function ret = get.alines(obj)
-        ret = obj.axis{1}.lineHandles;
-    end
-    function ret = get.blines(obj)
-        ret = obj.axis{2}.lineHandles;
-    end
-    function ret = get.lines(obj)
-        ret = [obj.axis{1}.lineHandles(:); obj.axis{2}.lineHandles(:)];
-    end
-       
-    function ret = get.aextraplines(obj)
-        ret = obj.axis{1}.extrapLineHandles;
-    end
-    function ret = get.bextraplines(obj)
-        ret = obj.axis{2}.extrapLineHandles;
-    end
-    function ret = get.extraplines(obj)
-        ret = [obj.axis{1}.extrapLineHandles(:); obj.axis{2}.extrapLineHandles(:)];
-    end
-        
-    function ret = get.amarkers(obj)
-        ret = obj.axis{1}.MarkerHandles;
-    end
-    function ret = get.bmarkers(obj)
-        ret = obj.axis{2}.MarkerHandles;
-    end
-    function ret = get.markers(obj)
-        ret = [obj.axis{1}.MarkerHandles(:); obj.axis{2}.MarkerHandles(:)];
-    end
-    function ret = get.alabeltext(obj)
-        ret = obj.axis{1}.labelHandle;
-    end
-    function ret = get.blabeltext(obj)
-        ret = obj.axis{2}.labelHandle;
-    end
-    function ret = get.labels(obj)
-        ret = [obj.axis{1}.labelHandle(:) ; obj.axis{2}.labelHandle(:)];
-    end
-    function ret = get.aarrow(obj)
-        ret = obj.axis{1}.arrowHandle;
-    end
-    function ret = get.barrow(obj)
-        ret = obj.axis{2}.arrowHandle;
-    end
-    function ret = get.arrows(obj)
-        ret = [obj.axis{1}.arrowHandle(:) ; obj.axis{2}.arrowHandle(:)];
-    end
-    
-    function ret = get.atext(obj)
-        ret = obj.axis{1}.textHandles;
-    end
-    function ret = get.btext(obj)
-        ret = obj.axis{2}.textHandles;
-    end
-    function ret = get.text(obj)
-        ret = [obj.axis{1}.textHandles(:) ; obj.axis{2}.textHandles(:)];
-    end
-    
-    function ret = get.zlabeltext(obj)
-        ret = obj.pzlabelandle;
-    end
-    
-    function set.style(obj,style)
-    % Just determine which style is chosen and assign the values to the 
-    % axis struct. Feel free to add your own style.
-     
-        switch style
-            case 'default'
-                obj.pStyle = style;
-                for n=1:2
-                    obj.axis{n}.preText = [];
-                    obj.axis{n}.postText = [];
-                    obj.axis{n}.labelSpacing = 0.3;
-                    obj.axis{n}.arrowSpacing = 0.3;
-                    obj.axis{n}.lineSpec = {    'LineWidth'         , 0.5                   , ...
-                                                'Color'             , [0 0 1]               , ...
-                                                'LineStyle'         , '-'                   };
-                    obj.axis{n}.extrapLineSpec = {'LineWidth'       , 0.5                   , ...
-                                                'Color'             , [1 0 0]               ,...
-                                                'LineStyle'         , '--'                  };
-                    obj.axis{n}.markerSpec = {  'Marker'            , 'none'                };                      
-                    obj.axis{n}.arrowFlipped = 1;
-                    obj.axis{n}.labelFlipped = 1;
-                    obj.axis{n}.textFlipped = 1;
-                    obj.axis{n}.textSpacing = 2;
-                    obj.axis{n}.textSpec = {    'FontSize'          ,10         , ...
-                                                'FontWeight'        ,'normal'     , ...
-                                                'VerticalAlignment' ,'middle'   };
-                    obj.axis{n}.textRotation = 1;
-                    obj.axis{n}.labelSpec = {   'FontSize'          ,10         , ...
-                                                'HorizontalAlignment','center'  , ...
-                                                'FontWeight'        ,'normal'   , ...
-                                                'visible'           ,'on'       , ...
-                                                'VerticalAlignment' ,'bottom'   };
-                    obj.axis{n}.arrowSpec = {   'EdgeColor'         ,[0 0 0]    };
-                end
-            case 'standard'
-                obj.pStyle = style;
-                for n=1:2
-                    obj.axis{n}.preText = [];
-                    obj.axis{n}.postText = [];
-                    obj.axis{n}.labelSpacing = 0.3;
-                    obj.axis{n}.arrowSpacing = 0.3;
-                    obj.axis{n}.lineSpec = {    'LineWidth'         , 1.5           , ...
-                                                'Color'             , [0 0 0]       , ...
-                                                'LineStyle'         , '-'            };
-                    obj.axis{n}.extrapLineSpec = {'LineWidth'       , 1.5                   , ...
-                                                'Color'             , [1 0 0]               ,...
-                                                'LineStyle'         , '--'                  };                        
-                    obj.axis{n}.markerSpec = {  'Marker'            , 'none'        };                      
-                    obj.axis{n}.arrowFlipped = 1;
-                    obj.axis{n}.labelFlipped = 1;
-                    obj.axis{n}.textFlipped = 1;
-                    obj.axis{n}.textSpacing = 2;
-                    obj.axis{n}.textSpec = {    'FontSize'          ,10         , ...
-                                                'FontWeight'        ,'normal'     , ...
-                                                'Color'             , [0 0 0]               ,...
-                                                'VerticalAlignment' ,'middle'   };
-                    obj.axis{n}.textRotation = 1;
-                    obj.axis{n}.labelSpec = {   'FontSize'          ,10        , ...
-                                                'HorizontalAlignment','center'  , ...
-                                                'visible'           ,'on'       , ...
-                                                'FontWeight'        ,'bold'     , ...
-                                                'VerticalAlignment' ,'bottom'   };
-                    obj.axis{n}.arrowSpec = {   'EdgeColor'         ,[0 0 0]    };
-                end
-            case 'basic'
-                obj.pStyle = style;
-                for n=1:2
-                    obj.axis{n}.preText = [];
-                    obj.axis{n}.postText = [];
-                    obj.axis{n}.labelSpacing = 0.3;
-                    obj.axis{n}.arrowSpacing = 0.3;
-                    obj.axis{n}.lineSpec = {    'LineWidth'         , 1                     ,...
-                                                'Color'             , [0 0 1]               ,...
-                                                'LineStyle'         , '-'                   };
-                    obj.axis{n}.extrapLineSpec = {'LineWidth'       , 1                     , ...
-                                                'Color'             , [1 0 0]               ,...
-                                                'LineStyle'         , '--'                  }; 
-                    obj.axis{n}.arrowFlipped = 0;
-                    obj.axis{n}.labelFlipped = 0;
-                    obj.axis{n}.textFlipped = 0;
-                    obj.axis{n}.textSpec = {    'FontSize'          ,10             , ...
-                                                'FontWeight'        ,'normal'       , ...
-                                                'VerticalAlignment' ,'middle'     };
-                    obj.axis{n}.textRotation = 0;
-                    obj.axis{n}.labelSpec = {   'FontSize'          ,15             , ...
-                                                'FontWeight'        ,'bold'         , ...
-                                                'VerticalAlignment' ,'middle'       , ...   
-                                                'visible'           ,'off'          };
-                    obj.axis{n}.arrowSpec = {   'EdgeColor'         ,'none'         , ...
-                                                'FaceColor'         ,'none'         };
-                    obj.axis{n}.markerSpec = {  'Marker'          , 'o'         , ...
-                                                'MarkerSize'      , 7           , ...
-                                                'MarkerEdgeColor' , [.2 .2 .2]  , ...
-                                                'MarkerFaceColor' , [.7 .7 .7]  };
-                end
-                obj.axis{2}.textSpacing = 4;
-                obj.axis{1}.textSpacing = -4;
+        function ret = get.btextflipped(obj)
+            ret = obj.axis{2}.textFlipped;
+        end
 
-            case 'minimal'
-                obj.pStyle = style;
-                for n=1:2
-                    obj.pStyle = style;
-                    obj.axis{n}.preText = [];
-                    obj.axis{n}.postText = [];
-                    obj.axis{n}.labelSpacing = 0.3;
-                    obj.axis{n}.arrowSpacing = 0.3;
-                    obj.axis{n}.lineSpec = {    'LineWidth'         , 1             , ...
-                                                'Color'             , [0 0 0]       , ...
-                                                'LineStyle'         , '-'           };
-                    obj.axis{n}.extrapLineSpec = {'LineWidth'       , 1                     , ...
-                                                'Color'             , [1 0 0]               ,...
-                                                'LineStyle'         , '--'                  };                         
-                    obj.axis{n}.arrowFlipped = 0;
-                    obj.axis{n}.textFlipped = 1;
-                    obj.axis{n}.labelFlipped = 0;
-                    obj.axis{n}.textSpacing = -5;
-                    obj.axis{n}.textSpec = {    'FontSize'          ,10             ,...
-                                                'FontWeight'        ,'normal'       ,...
-                                                'VerticalAlignment' ,'bottom'       };
-                    obj.axis{n}.textRotation = 1;
-                    obj.axis{n}.labelSpec = {   'visible'           ,'off'          };
-                    obj.axis{n}.arrowSpec = {   'EdgeColor'         ,'none'         , ...
-                                                'FaceColor'         ,'none'         };
-                    obj.axis{n}.markerSpec = {  'Marker'            , 'none'        };
-                end
-                case 'clean'
-                obj.pStyle = style;
-                for n=1:2
-                    obj.pStyle = style;
-                    obj.axis{n}.preText = [];
-                    obj.axis{n}.postText = [];
-                    obj.axis{n}.labelSpacing = 0.25;
-                    obj.axis{n}.arrowSpacing = 0.3;
-                    obj.axis{n}.lineSpec = {    'LineWidth'         , 1.5           , ...
-                                                'Color'             , [0 0 0]       , ...
-                                                'LineStyle'         , '-'           };
-                    obj.axis{n}.extrapLineSpec = {'LineWidth'       , 1.5                   , ...
-                                                'Color'             , [1 0 0]               ,...
-                                                'LineStyle'         , '--'                  };                         
-                    obj.axis{n}.arrowFlipped = 0;
-                    obj.axis{n}.textFlipped = 0;
-                    obj.axis{n}.labelFlipped = 0;
-                    obj.axis{n}.textSpacing = 3;
-                    obj.axis{n}.textSpec = {    'FontSize'          ,10             ,...
-                                                'FontWeight'        ,'normal'       ,...
-                                                'VerticalAlignment' ,'middle'       };
-                    obj.axis{n}.textRotation = 1;
-                    obj.axis{n}.labelSpec = {   'FontSize'          ,10             , ...
-                                                'FontWeight'        ,'bold'         , ...
-                                                'VerticalAlignment' ,'middle'       , ...
-                                                'HorizontalAlignment' ,'center'     };
-                    obj.axis{n}.arrowSpec = {   'EdgeColor'         ,'none'         , ...
-                                                'FaceColor'         ,'none'         };
-                    obj.axis{n}.markerSpec = {  'Marker'            , 'none'        };
-                end
-            otherwise
-                warning('No Valid style. Keeping the current style.')
-        end 
-        % Refresh of Plot AND Text is needed
-        obj.needPlotRefresh  = 1;
-%         obj.label;
-         obj.needTextStyleRefresh  = 1;
-         obj.needTextRefresh  = 1;
-    end
-    
-    function ret = get.style(obj)
-        ret = obj.pStyle;
-    end
-    
-    function set.atick(obj,value)
-        %Input checks
-        if ~isnumeric(value) || isempty(value)
-            warning('ATick Input is not a number')
-        elseif min(value) < min(obj.inputMatrixA(:)) || max(value) > max(obj.inputMatrixA(:))
-            warning('Out of Range: A should be between %d and %d',min(obj.inputMatrixA(:)),max(obj.inputMatrixA(:)))               
-        else
-            % Clean input from dublicate values
-            value = unique(value(:));
-            % Change the ticks
-            obj.settick(value,1);
-        end    
-    end
-    function ret = get.atick(obj)
-        ret = obj.axis{1}.interval;
-    end
-    function set.btick(obj,value)
-        %Input checks
-        if ~isnumeric(value) || isempty(value)
-            warning('BTick Input is not a number')
-        elseif min(value) < min(obj.inputMatrixB(:)) || max(value) > max(obj.inputMatrixB(:))
-            warning('Out of Range: B should be between %d and %d',min(obj.inputMatrixB(:)),max(obj.inputMatrixB(:)))               
-        else
-            % Clean input from dublicate values
-            value = unique(value(:));
-            % Change the ticks
-            obj.settick(value,2);
-        end    
-    end
-    function ret = get.btick(obj)
-        ret = obj.axis{2}.interval;
-    end
+        function set.aarrowflipped(obj,value)
+            if (value == 0) || (value == 1)
+                obj.axis{1}.arrowFlipped = value;
+                obj.needTextRefresh = 1;
+            else
+                error('AArrowFlipped value must be 0 or 1')
+            end
+        end
+
+        function ret = get.aarrowflipped(obj)
+            ret = obj.axis{1}.arrowFlipped;
+        end
         
-        function set.alabelspacing(obj,value) 
+        function set.barrowflipped(obj,value)
+            if (value == 0) || (value == 1)
+                obj.axis{2}.arrowFlipped = value;
+                obj.needTextRefresh = 1;
+            else
+                error('BArrowFlipped value must be 0 or 1')
+            end
+        end
+
+        function ret = get.barrowflipped(obj)
+            ret = obj.axis{2}.arrowFlipped;
+        end
+
+        function set.alabelflipped(obj,value)
+            if (value == 0) || (value == 1)
+                obj.axis{1}.labelFlipped = value;
+                obj.needTextRefresh = 1;
+            else
+                error('ALabelFlipped value must be 0 or 1')
+            end
+        end
+
+        function ret = get.alabelflipped(obj)
+            ret = obj.axis{1}.labelFlipped;
+        end
+
+        function set.blabelflipped(obj,value)
+            if (value == 0) || (value == 1)
+                obj.axis{2}.labelFlipped = value;
+                obj.needTextRefresh = 1;
+            else
+                error('BLabelFlipped value must be 0 or 1')
+            end
+        end
+
+        function ret = get.blabelflipped(obj)
+            ret = obj.axis{2}.arrowFlipped;
+        end
+
+        function set.asuffix(obj,value)
+            obj.axis{1}.postText = num2str(value);
+            obj.needRelabel = 1;
+        end
+
+        function ret = get.asuffix(obj)
+            ret = obj.axis{1}.postText;
+        end
+
+        function set.bsuffix(obj,value)
+            obj.axis{2}.postText = num2str(value);
+            obj.needRelabel = 1;
+        end
+
+        function ret = get.bsuffix(obj)
+            ret = obj.axis{2}.postText;
+        end
+        
+        function set.aprefix(obj,value)
+            obj.axis{1}.preText = num2str(value);
+            obj.needRelabel = 1;
+        end
+
+        function ret = get.aprefix(obj)
+            ret = obj.axis{1}.prefText;
+        end
+        
+        function set.bprefix(obj,value)
+            obj.axis{2}.preText = num2str(value);
+            obj.needRelabel = 1;
+        end
+
+        function ret = get.bprefix(obj)
+            ret = obj.axis{2}.preText;
+        end
+
+        function set.atextrotation(obj,value)
+            if (value == 0) || (value == 1)
+                obj.axis{1}.textRotation = value;
+                obj.needTextRefresh = 1;
+            else
+                error('ATextRotation value must be 0 or 1')
+            end
+        end
+
+        function ret = get.atextrotation(obj)
+            ret = obj.axis{1}.textRotation;
+        end
+
+        function set.btextrotation(obj,value)
+            if (value == 0) || (value == 1)
+                obj.axis{2}.textRotation = value;
+                obj.needTextRefresh = 1;
+            else
+                error('BTextRotation value must be 0 or 1')
+            end
+        end
+
+        function ret = get.btextrotation(obj)
+            ret = obj.axis{2}.textRotation;
+        end
+
+        function set.atextspacing(obj,value)
+            if isnumeric(value)
+                obj.axis{1}.textSpacing = value;
+                obj.needTextRefresh = 1;
+            else
+                error('ATextSpacing must be a number')
+            end
+        end
+
+        function ret = get.atextspacing(obj)
+            ret = obj.axis{1}.textSpacing;
+        end
+
+        function set.btextspacing(obj,value)
+            if isnumeric(value)
+                obj.axis{2}.textSpacing = value;
+                obj.needTextRefresh = 1;
+            else
+                error('BTextSpacing must be a number')
+            end
+        end
+
+        function ret = get.btextspacing(obj)
+            ret = obj.axis{2}.textSpacing;
+            obj.needTextRefresh = 1;
+        end
+
+        function set.alabelspacing(obj,value)
             if isnumeric(value)
                 obj.axis{1}.labelSpacing = value;
                 obj.needTextRefresh = 1;
@@ -1163,11 +1161,12 @@ methods
                 error('aLabelSpacing must be numeric')
             end
         end
-        function ret = get.alabelspacing(obj)         
+
+        function ret = get.alabelspacing(obj)
             ret = obj.axis{1}.labelSpacing;
         end
         
-        function set.blabelspacing(obj,value) 
+        function set.blabelspacing(obj,value)
             if isnumeric(value)
                 obj.axis{2}.labelSpacing = value;
                 obj.needTextRefresh = 1;
@@ -1175,11 +1174,12 @@ methods
                 error('aLabelSpacing must be numeric')
             end
         end
-        function ret = get.blabelspacing(obj)         
+
+        function ret = get.blabelspacing(obj)
             ret = obj.axis{2}.labelSpacing;
         end
         
-        function set.aarrowspacing(obj,value) 
+        function set.aarrowspacing(obj,value)
             if isnumeric(value)
                 obj.axis{1}.arrowSpacing = value;
                 obj.needTextRefresh = 1;
@@ -1187,11 +1187,12 @@ methods
                 error('aArrowSpacing must be numeric')
             end
         end
-        function ret = get.aarrowspacing(obj)         
+
+        function ret = get.aarrowspacing(obj)
             ret = obj.axis{1}.arrowSpacing;
         end
         
-        function set.barrowspacing(obj,value) 
+        function set.barrowspacing(obj,value)
             if isnumeric(value)
                 obj.axis{2}.arrowSpacing = value;
                 obj.needTextRefresh = 1;
@@ -1199,11 +1200,12 @@ methods
                 error('aArrowSpacing must be numeric')
             end
         end
-        function ret = get.barrowspacing(obj)         
+
+        function ret = get.barrowspacing(obj)
             ret = obj.axis{2}.arrowSpacing;
         end
         
-        function set.aflipped(obj,value) 
+        function set.aflipped(obj,value)
             if (value == 0) || (value == 1)
                 obj.axis{1}.textFlipped = value;
                 obj.axis{1}.labelFlipped = value;
@@ -1214,7 +1216,7 @@ methods
             end
         end
         
-        function set.bflipped(obj,value) 
+        function set.bflipped(obj,value)
             if (value == 0) || (value == 1)
                 obj.axis{2}.textFlipped = value;
                 obj.axis{2}.labelFlipped = value;
@@ -1225,233 +1227,316 @@ methods
             end
         end
         
-        function set.atextflipped(obj,value) 
-            if (value == 0) || (value == 1)
-                obj.axis{1}.textFlipped = value;
-                obj.needTextRefresh = 1;
-            else
-                error('ATextFlipped value must be 0 or 1')
-            end
-        end
-        function ret = get.atextflipped(obj)         
-            ret = obj.axis{1}.textFlipped;
-        end
-        
-        function set.btextflipped(obj,value) 
-            if (value == 0) || (value == 1)
-                obj.axis{2}.textFlipped = value;
-                obj.needTextRefresh = 1;
-            else
-                error('BTextFlipped value must be 0 or 1')
-            end
-        end
-        function ret = get.btextflipped(obj)         
-            ret = obj.axis{2}.textFlipped;
-        end
-        
-        function set.aarrowflipped(obj,value) 
-            if (value == 0) || (value == 1)
-                obj.axis{1}.arrowFlipped = value;
-                obj.needTextRefresh = 1;
-            else
-                error('AArrowFlipped value must be 0 or 1')
-            end
-        end
-        function ret = get.aarrowflipped(obj)         
-            ret = obj.axis{1}.arrowFlipped;
-        end
-        
-        function set.barrowflipped(obj,value) 
-            if (value == 0) || (value == 1)
-                obj.axis{2}.arrowFlipped = value;
-                obj.needTextRefresh = 1;
-            else
-                error('BArrowFlipped value must be 0 or 1')
-            end
-        end
-        function ret = get.barrowflipped(obj)         
-            ret = obj.axis{2}.arrowFlipped;
-        end
-        
-        function set.alabelflipped(obj,value) 
-            if (value == 0) || (value == 1)
-                obj.axis{1}.labelFlipped = value;
-                obj.needTextRefresh = 1;
-            else
-                error('ALabelFlipped value must be 0 or 1')
-            end
-        end
-        function ret = get.alabelflipped(obj)         
-            ret = obj.axis{1}.labelFlipped;
-        end
-        
-        function set.blabelflipped(obj,value) 
-            if (value == 0) || (value == 1)
-                obj.axis{2}.labelFlipped = value;
-                obj.needTextRefresh = 1;
-            else
-                error('BLabelFlipped value must be 0 or 1')
-            end
-        end
-        function ret = get.blabelflipped(obj)         
-            ret = obj.axis{2}.arrowFlipped;
-        end
-        
-        function set.aprefix(obj,value) 
-           obj.axis{1}.preText = num2str(value);
-           obj.needRelabel = 1;
-        end
-        function ret = get.aprefix(obj)         
-            ret = obj.axis{1}.prefText;
-        end
-        
-        function set.bprefix(obj,value) 
-           obj.axis{2}.preText = num2str(value);
-           obj.needRelabel = 1;
-        end
-        function ret = get.bprefix(obj)         
-            ret = obj.axis{2}.preText;
-        end
-        
-        function set.asuffix(obj,value) 
-           obj.axis{1}.postText = num2str(value);
-           obj.needRelabel = 1;
-        end
-        function ret = get.asuffix(obj)         
-            ret = obj.axis{1}.postText;
-        end
-        
-        function set.bsuffix(obj,value) 
-           obj.axis{2}.postText = num2str(value);
-           obj.needRelabel = 1;
-        end
-        function ret = get.bsuffix(obj)         
-            ret = obj.axis{2}.postText;
-        end
-        
-        function set.atextrotation(obj,value) 
-            if (value == 0) || (value == 1)
-                obj.axis{1}.textRotation = value;
-                obj.needTextRefresh = 1;
-            else
-                error('ATextRotation value must be 0 or 1')
-            end
-        end
-        function ret = get.atextrotation(obj)   
-            ret = obj.axis{1}.textRotation;
-        end
-        
-        function set.btextrotation(obj,value) 
-            if (value == 0) || (value == 1)
-                obj.axis{2}.textRotation = value;
-                obj.needTextRefresh = 1;
-            else
-                error('BTextRotation value must be 0 or 1')
-            end
-        end
-        function ret = get.btextrotation(obj)   
-            ret = obj.axis{2}.textRotation;
-        end
-        
-        function set.atextspacing(obj,value) 
-            if isnumeric(value)
-                obj.axis{1}.textSpacing = value;
-                obj.needTextRefresh = 1;
-            else
-                error('ATextSpacing must be a number')
-            end
-        end
-        function ret = get.atextspacing(obj)         
-            ret = obj.axis{1}.textSpacing;
-        end
-        
-        function set.btextspacing(obj,value) 
-            if isnumeric(value)
-                obj.axis{2}.textSpacing = value;
-                obj.needTextRefresh = 1;
-            else
-                error('BTextSpacing must be a number')
-            end
-        end
-        function ret = get.btextspacing(obj)         
-            ret = obj.axis{2}.textSpacing;
-            obj.needTextRefresh = 1;
-        end
-        
-        %Set the K0, K1 and the K2 values
-        function set.k0(obj,value)
-               if (obj.type==3)
-                   obj.pK0 = value;
-                   obj.inputMatrixX = obj.pK0 + obj.pK1.*obj.inputMatrixA+obj.pK2.*obj.inputMatrixB;
-                   obj.needTextRefresh = 1;
-                   obj.needPlotRefresh = 1;
-               else
-                   warning('The K0 value only affects plots with 3 variables')
-               end
-        end
-        
-        function set.k1(obj,value)
-               if (value==0)
-                   error('K1 Value cannot be zero')
-               elseif (obj.type==3)
-                   obj.pK1 = value;
-                   obj.inputMatrixX = obj.pK0 + obj.pK1.*obj.inputMatrixA+obj.pK2.*obj.inputMatrixB;
-                   obj.needTextRefresh = 1;
-                   obj.needPlotRefresh = 1;
-               else
-                   warning('The K1 value only affects plots with 3 variables')
-               end
-        end
-        
-        function set.k2(obj,value)
-               if (value==0)
-                   error('K2 value cannot be zero')
-               elseif (obj.type==3)
-                   obj.pK2 = value;
-                   obj.inputMatrixX = obj.pK0 + obj.pK1.*obj.inputMatrixA+obj.pK2.*obj.inputMatrixB;
-                   obj.needTextRefresh = 1;
-                   obj.needPlotRefresh = 1;
-               else
-                   warning('This value only affects plots with 3 variables')
-               end
-        end
-        
-        function ret = get.k0(obj)
-               ret = obj.pK0;
-        end
-        
-        function ret = get.k2(obj)
-               ret = obj.pK2;
-        end
-        
-        function ret = get.k1(obj)
-               ret = obj.pK1;
-        end
-        
         function set.curvefitting(obj,value)
-                
-            if strcmp('pchip',value)  || strcmp('epchip',value) || ...
-               strcmp('spline',value) || strcmp('espline',value) || strcmp('elinear',value)
+            if strcmp('pchip',value) ...
+                    || strcmp('epchip',value) ...
+                    || strcmp('spline',value) ...
+                    || strcmp('espline',value) ...
+                    || strcmp('elinear',value)
                 % Using linear Data Fitting because otherwise NaN Values
                 % will be extrapolated
                 obj.dataFitting = 'linear';
                 obj.pCurveFitting = value;
             else
-               if strcmp('linear',value)
+                if strcmp('linear',value)
                     obj.dataFitting = 'linear';
                     obj.pCurveFitting = value;
-               else
-                   warning([value ' is not a supported curve fitting method. Using linear'])
-               end            
-            end            
+                else
+                    warning([value ...
+                        ' is not a supported curve fitting method. Using linear'])
+                end
+            end
             obj.needPlotRefresh = 1;
-         end
-        
-         function ret = get.curvefitting(obj)
+        end
+
+        function ret = get.curvefitting(obj)
             ret = obj.pCurveFitting;
-         end
-         
-         function set.zalignement(obj,value) 
+        end
+
+        function set.atick(obj,value)
+            %Input checks
+            if ~isnumeric(value) || isempty(value)
+                warning('ATick Input is not a number')
+            elseif min(value) < min(obj.inputMatrixA(:)) ...
+                    || max(value) > max(obj.inputMatrixA(:))
+                warning('Out of Range: A should be between %d and %d', ...
+                    min(obj.inputMatrixA(:)), max(obj.inputMatrixA(:)))
+            else
+                % Clean input from dublicate values
+                value = unique(value(:));
+                % Change the ticks
+                obj.settick(value,1);
+            end
+        end
+
+        function ret = get.atick(obj)
+            ret = obj.axis{1}.interval;
+        end
+
+        function set.btick(obj,value)
+            %Input checks
+            if ~isnumeric(value) || isempty(value)
+                warning('BTick Input is not a number')
+            elseif min(value) < min(obj.inputMatrixB(:)) || max(value) > max(obj.inputMatrixB(:))
+                warning('Out of Range: B should be between %d and %d',min(obj.inputMatrixB(:)),max(obj.inputMatrixB(:)))
+            else
+                % Clean input from dublicate values
+                value = unique(value(:));
+                % Change the ticks
+                obj.settick(value,2);
+            end
+        end
+
+        function ret = get.btick(obj)
+            ret = obj.axis{2}.interval;
+        end
+
+        %Set the K0, K1 and the K2 values
+        function set.k0(obj,value)
+            if (obj.type==3)
+                obj.pK0 = value;
+                obj.inputMatrixX = obj.pK0 ...
+                    + obj.pK1.*obj.inputMatrixA ...
+                    + obj.pK2.*obj.inputMatrixB;
+                obj.needTextRefresh = 1;
+                obj.needPlotRefresh = 1;
+            else
+                warning('The K0 value only affects plots with 3 variables')
+            end
+        end
+        
+        function set.k1(obj,value)
+            if (value==0)
+                error('K1 Value cannot be zero')
+            elseif (obj.type==3)
+                obj.pK1 = value;
+                obj.inputMatrixX = obj.pK0 ...
+                    + obj.pK1.*obj.inputMatrixA ...
+                    + obj.pK2.*obj.inputMatrixB;
+                obj.needTextRefresh = 1;
+                obj.needPlotRefresh = 1;
+            else
+                warning('The K1 value only affects plots with 3 variables')
+            end
+        end
+        
+        function set.k2(obj,value)
+            if (value==0)
+                error('K2 value cannot be zero')
+            elseif (obj.type==3)
+                obj.pK2 = value;
+                obj.inputMatrixX = obj.pK0 ...
+                    + obj.pK1.*obj.inputMatrixA ...
+                    + obj.pK2.*obj.inputMatrixB;
+                obj.needTextRefresh = 1;
+                obj.needPlotRefresh = 1;
+            else
+                warning('This value only affects plots with 3 variables')
+            end
+        end
+        
+        function ret = get.k0(obj)
+            ret = obj.pK0;
+        end
+        
+        function ret = get.k2(obj)
+            ret = obj.pK2;
+        end
+        
+        function ret = get.k1(obj)
+            ret = obj.pK1;
+        end
+
+        function set.style(obj,style)
+            % Just determine which style is chosen and assign the values to
+            % the axis struct. Feel free to add your own style.
+            switch style
+                case 'default'
+                    obj.pStyle = style;
+                    for n=1:2
+                        obj.axis{n}.preText = [];
+                        obj.axis{n}.postText = [];
+                        obj.axis{n}.labelSpacing = 0.3;
+                        obj.axis{n}.arrowSpacing = 0.3;
+                        obj.axis{n}.lineSpec = { ...
+                            'LineWidth', 0.5, ...
+                            'Color', [0 0 1], ...
+                            'LineStyle', '-' };
+                        obj.axis{n}.extrapLineSpec = { ...
+                            'LineWidth', 0.5, ...
+                            'Color', [1 0 0], ...
+                            'LineStyle', '--' };
+                        obj.axis{n}.markerSpec = { 'Marker', 'none' };
+                        obj.axis{n}.arrowFlipped = 1;
+                        obj.axis{n}.labelFlipped = 1;
+                        obj.axis{n}.textFlipped = 1;
+                        obj.axis{n}.textSpacing = 2;
+                        obj.axis{n}.textSpec = { ...
+                            'FontSize', 10, ...
+                            'FontWeight', 'normal', ...
+                            'VerticalAlignment', 'middle' };
+                        obj.axis{n}.textRotation = 1;
+                        obj.axis{n}.labelSpec = { ...
+                            'FontSize', 10, ...
+                            'HorizontalAlignment', 'center', ...
+                            'FontWeight', 'normal', ...
+                            'visible', 'on', ...
+                            'VerticalAlignment', 'bottom' };
+                        obj.axis{n}.arrowSpec = { 'EdgeColor', [0 0 0] };
+                    end
+                case 'standard'
+                    obj.pStyle = style;
+                    for n=1:2
+                        obj.axis{n}.preText = [];
+                        obj.axis{n}.postText = [];
+                        obj.axis{n}.labelSpacing = 0.3;
+                        obj.axis{n}.arrowSpacing = 0.3;
+                        obj.axis{n}.lineSpec = { ...
+                            'LineWidth', 1.5, ...
+                            'Color', [0 0 0], ...
+                            'LineStyle', '-' };
+                        obj.axis{n}.extrapLineSpec = { ...
+                            'LineWidth', 1.5, ...
+                            'Color', [1 0 0], ...
+                            'LineStyle', '--' };
+                        obj.axis{n}.markerSpec = { 'Marker', 'none' };
+                        obj.axis{n}.arrowFlipped = 1;
+                        obj.axis{n}.labelFlipped = 1;
+                        obj.axis{n}.textFlipped = 1;
+                        obj.axis{n}.textSpacing = 2;
+                        obj.axis{n}.textSpec = { ...
+                            'FontSize', 10, ...
+                            'FontWeight', 'normal', ...
+                            'Color', [0 0 0], ...
+                            'VerticalAlignment', 'middle' };
+                        obj.axis{n}.textRotation = 1;
+                        obj.axis{n}.labelSpec = { ...
+                            'FontSize', 10, ...
+                            'HorizontalAlignment', 'center'  , ...
+                            'visible', 'on', ...
+                            'FontWeight', 'bold', ...
+                            'VerticalAlignment', 'bottom' };
+                        obj.axis{n}.arrowSpec = { 'EdgeColor', [0 0 0] };
+                    end
+                case 'basic'
+                    obj.pStyle = style;
+                    for n=1:2
+                        obj.axis{n}.preText = [];
+                        obj.axis{n}.postText = [];
+                        obj.axis{n}.labelSpacing = 0.3;
+                        obj.axis{n}.arrowSpacing = 0.3;
+                        obj.axis{n}.lineSpec = { ...
+                            'LineWidth', 1, ...
+                            'Color', [0 0 1], ...
+                            'LineStyle', '-' };
+                        obj.axis{n}.extrapLineSpec = { ...
+                            'LineWidth', 1, ...
+                            'Color', [1 0 0], ...
+                            'LineStyle', '--' };
+                        obj.axis{n}.arrowFlipped = 0;
+                        obj.axis{n}.labelFlipped = 0;
+                        obj.axis{n}.textFlipped = 0;
+                        obj.axis{n}.textSpec = { ...
+                            'FontSize', 10, ...
+                            'FontWeight', 'normal', ...
+                            'VerticalAlignment', 'middle' };
+                        obj.axis{n}.textRotation = 0;
+                        obj.axis{n}.labelSpec = { ...
+                            'FontSize', 15, ...
+                            'FontWeight', 'bold', ...
+                            'VerticalAlignment', 'middle', ...
+                            'visible', 'off' };
+                        obj.axis{n}.arrowSpec = { ...
+                            'EdgeColor', 'none', ...
+                            'FaceColor', 'none' };
+                        obj.axis{n}.markerSpec = { ...
+                            'Marker', 'o', ...
+                            'MarkerSize', 7, ...
+                            'MarkerEdgeColor', [.2 .2 .2], ...
+                            'MarkerFaceColor', [.7 .7 .7]  };
+                    end
+                    obj.axis{2}.textSpacing = 4;
+                    obj.axis{1}.textSpacing = -4;
+                case 'minimal'
+                    obj.pStyle = style;
+                    for n=1:2
+                        obj.pStyle = style;
+                        obj.axis{n}.preText = [];
+                        obj.axis{n}.postText = [];
+                        obj.axis{n}.labelSpacing = 0.3;
+                        obj.axis{n}.arrowSpacing = 0.3;
+                        obj.axis{n}.lineSpec = { ...
+                            'LineWidth', 1, ...
+                            'Color', [0 0 0], ...
+                            'LineStyle', '-' };
+                        obj.axis{n}.extrapLineSpec = { ...
+                            'LineWidth', 1, ...
+                            'Color', [1 0 0], ...
+                            'LineStyle', '--' };
+                        obj.axis{n}.arrowFlipped = 0;
+                        obj.axis{n}.textFlipped = 1;
+                        obj.axis{n}.labelFlipped = 0;
+                        obj.axis{n}.textSpacing = -5;
+                        obj.axis{n}.textSpec = { ...
+                            'FontSize', 10, ...
+                            'FontWeight', 'normal', ...
+                            'VerticalAlignment', 'bottom' };
+                        obj.axis{n}.textRotation = 1;
+                        obj.axis{n}.labelSpec = { 'visible', 'off' };
+                        obj.axis{n}.arrowSpec = { ...
+                            'EdgeColor', 'none', ...
+                            'FaceColor', 'none' };
+                        obj.axis{n}.markerSpec = { 'Marker', 'none' };
+                    end
+                case 'clean'
+                    obj.pStyle = style;
+                    for n=1:2
+                        obj.pStyle = style;
+                        obj.axis{n}.preText = [];
+                        obj.axis{n}.postText = [];
+                        obj.axis{n}.labelSpacing = 0.25;
+                        obj.axis{n}.arrowSpacing = 0.3;
+                        obj.axis{n}.lineSpec = { ...
+                            'LineWidth', 1.5, ...
+                            'Color', [0 0 0], ...
+                            'LineStyle', '-' };
+                        obj.axis{n}.extrapLineSpec = { ...
+                            'LineWidth', 1.5, ...
+                            'Color', [1 0 0], ...
+                            'LineStyle', '--' };
+                        obj.axis{n}.arrowFlipped = 0;
+                        obj.axis{n}.textFlipped = 0;
+                        obj.axis{n}.labelFlipped = 0;
+                        obj.axis{n}.textSpacing = 3;
+                        obj.axis{n}.textSpec = { ...
+                            'FontSize', 10, ...
+                            'FontWeight', 'normal',...
+                            'VerticalAlignment', 'middle' };
+                        obj.axis{n}.textRotation = 1;
+                        obj.axis{n}.labelSpec = { ...
+                            'FontSize', 10, ...
+                            'FontWeight', 'bold', ...
+                            'VerticalAlignment', 'middle', ...
+                            'HorizontalAlignment', 'center' };
+                        obj.axis{n}.arrowSpec = { ...
+                            'EdgeColor', 'none', ...
+                            'FaceColor', 'none' };
+                        obj.axis{n}.markerSpec = { 'Marker', 'none' };
+                    end
+                otherwise
+                    warning('No Valid style. Keeping the current style.')
+            end
+            % Refresh of Plot AND Text is needed
+            obj.needPlotRefresh  = 1;
+            obj.needTextStyleRefresh  = 1;
+            obj.needTextRefresh  = 1;
+        end
+        
+        function ret = get.style(obj)
+            ret = obj.pStyle;
+        end
+
+        function set.zalignement(obj,value)
             if strcmpi(value,'bottom') || strcmpi(value,'top')
                 obj.pZAlignement = value;
                 if ~isempty(obj.pzlabelandle) && ishandle(obj.pzlabelandle)
@@ -1464,11 +1549,12 @@ methods
             end
             
         end
-        function ret = get.zalignement(obj)         
+
+        function ret = get.zalignement(obj)
             ret = obj.pZAlignement;
         end
         
-        function set.zValue(obj,value) 
+        function set.zValue(obj,value)
             if isnumeric(value)
                 obj.z = value;
             else
@@ -1476,132 +1562,133 @@ methods
             end
             
         end
-        function ret = get.zValue(obj)         
+
+        function ret = get.zValue(obj)
             ret = obj.z;
         end
-    
-    function set(obj,varargin)
-    % SET calls set functions for the given properties.
-    %
-    %  set(obj,'PropertyName',PropertyValue,...)
-    %
-    % Set works similar to matlab's built in set function.
-    % Call HELP CARPETPLOT to see a list of accessible properties.
-    %
-    % See Also: carpetplot, carpetplot.get
-    % 
-    
-        % Size of varargin must be even. Parameter/Value Pairs.
-        if rem(nargin-1,2) ~= 0;
-            error('Every argument needs a parameter/value')
-        end
-        
-        % Evaluate the varargin parameter
-        for n=1:2:nargin-1
+
+        function set(obj,varargin)
+            % SET calls set functions for the given properties.
+            %
+            %  set(obj,'PropertyName',PropertyValue,...)
+            %
+            % Set works similar to matlab's built in set function.
+            % Call HELP CARPETPLOT to see a list of accessible properties.
+            %
+            % See Also: carpetplot, carpetplot.get
+            %
             
-            if ischar(varargin{n}) && isprop(obj,lower(varargin{n}))
-                mp = findprop(obj,lower(varargin{n}));
-                if strcmp(mp.GetAccess,'public')
-                    if ischar(varargin{n+1})
-                        evalStr = ['obj.' lower(varargin{n}) '=''' num2str(varargin{n+1}) ''';'];
+            % Size of varargin must be even. Parameter/Value Pairs.
+            if rem(nargin-1,2) ~= 0;
+                error('Every argument needs a parameter/value')
+            end
+            
+            % Evaluate the varargin parameter
+            for n=1:2:nargin-1
+                
+                if ischar(varargin{n}) && isprop(obj,lower(varargin{n}))
+                    mp = findprop(obj,lower(varargin{n}));
+                    if strcmp(mp.GetAccess,'public')
+                        if ischar(varargin{n+1})
+                            evalStr = ['obj.' lower(varargin{n}) '=''' num2str(varargin{n+1}) ''';'];
+                        else
+                            evalStr = ['obj.' lower(varargin{n}) '=[' num2str(varargin{n+1}) '];'];
+                        end
+                        % Use eval to call set functions
+                        eval(evalStr)
                     else
-                        evalStr = ['obj.' lower(varargin{n}) '=[' num2str(varargin{n+1}) '];'];
+                        error('Invalid parameter/value pair arguments')
                     end
-                    % Use eval to call set functions
-                    eval(evalStr)
                 else
                     error('Invalid parameter/value pair arguments')
                 end
-            else
-                error('Invalid parameter/value pair arguments')
+                
             end
-        
+            
+            % Check if any of the set functions need a redraw.
+            
+            if obj.needPlotRefresh
+                obj.refreshplot;
+            end
+            if obj.needRelabel
+                obj.plabel(1);
+                obj.plabel(2);
+            end
+            if obj.needTextRefresh
+                obj.refreshlabels('position');
+            end
+            if obj.needTextStyleRefresh
+                obj.refreshlabels('style');
+            end
+            
         end
         
-        % Check if any of the set functions need a redraw.
+        function ret = get(obj,param)
+            % GET calls get functions for the given properties.
+            %
+            %  get(obj,'PropertyName')
+            %
+            % get works similar to matlab's built in get function.
+            % Call HELP CARPETPLOT to see a list of accessible properties.
+            %
+            % See Also: carpetplot, carpetplot.set
+            %
+            
+            % Make a string to evaluate and run it via eval.
+            if ischar(param) && isprop(obj,lower(param))
+                evalStr = ['obj.' lower(param)];
+                ret = eval(evalStr);
+            else
+                error([num2str(param) ' is not a carpet plot property'])
+            end
+        end
         
-        if obj.needPlotRefresh
-            obj.refreshplot;
-        end
-        if obj.needRelabel
-            obj.plabel(1);
-            obj.plabel(2);
-        end
-        if obj.needTextRefresh
-            obj.refreshlabels('position');
-        end 
-        if obj.needTextStyleRefresh
-            obj.refreshlabels('style');
-        end
-           
-    end
-    
-    function ret = get(obj,param)
-    % GET calls get functions for the given properties.
-    %
-    %  get(obj,'PropertyName')
-    %
-    % get works similar to matlab's built in get function.
-    % Call HELP CARPETPLOT to see a list of accessible properties.
-    %
-    % See Also: carpetplot, carpetplot.set
-    % 
-        
-        % Make a string to evaluate and run it via eval.
-        if ischar(param) && isprop(obj,lower(param))
-            evalStr = ['obj.' lower(param)];
-            ret = eval(evalStr);
-        else
-           error([num2str(param) ' is not a carpet plot property']) 
-        end
-    end
-    
-    function [x, y] = abtoxy(obj,a,b)
-    % XYTOAB Transforms XY coordinates into the coordinate system of the
-    % carpet. 
-    %
-    % XYTOAB(obj,A,B) converts the given a and b values to the 
-    % coordinate system of the carpet plot. Note that values that are out of the range of the
-    % carpet plot will not be calculated.
-    %
-
-
-             %Clear Out of Range Values
-             a(a>max(obj.axis{1}.interval)) = NaN;
-             a(a<min(obj.axis{1}.interval)) = NaN;
-             b(b>max(obj.axis{2}.interval)) = NaN;
-             b(b<min(obj.axis{2}.interval)) = NaN;
+        function [x, y] = abtoxy(obj,a,b)
+            % XYTOAB Transforms XY coordinates into the coordinate system of the
+            % carpet.
+            %
+            % XYTOAB(obj,A,B) converts the given a and b values to the
+            % coordinate system of the carpet plot. Note that values that are out of the range of the
+            % carpet plot will not be calculated.
+            %
+            
+            
+            %Clear Out of Range Values
+            a(a>max(obj.axis{1}.interval)) = NaN;
+            a(a<min(obj.axis{1}.interval)) = NaN;
+            b(b>max(obj.axis{2}.interval)) = NaN;
+            b(b<min(obj.axis{2}.interval)) = NaN;
             
             %Transformate
             [x, y] = obj.transformtoxy(a,b,'linear');
-    end
-    
-    function ret = plot(obj,a,b,varargin)
-    % PLOT plots a line into the carpet plot.
-    % Plot a 2d-line into the carpet plot.
-    %
-    % PLOT(obj,X,Y,varargin) the plot method is overloaded so it is possible 
-    % to plot into the a/b axis by using the matlab plot command. Varargin 
-    % will be passed to the matab plot function.
-    %
-    % See also: carpetplot.hatchedline, carpetplot.contourf
-    %
-
+        end
+        
+        function ret = plot(obj,a,b,varargin)
+            % PLOT plots a line into the carpet plot.
+            % Plot a 2d-line into the carpet plot.
+            %
+            % PLOT(obj,X,Y,varargin) the plot method is overloaded so it is possible
+            % to plot into the a/b axis by using the matlab plot command. Varargin
+            % will be passed to the matab plot function.
+            %
+            % See also: carpetplot.hatchedline, carpetplot.contourf
+            %
+            
             [x,y] = obj.abtoxy(a,b);
             ret = plot(x,y,varargin{:});
-    end
-    
-    function ret = hatchedline(obj,a,b,varargin)
-    % HATCHEDLINE plots a hatched line into the carpet plot.
-    % This function is called the HATCHEDLINE function by Rob McDonald; see his
-    % documentation for further details on how to use it.
-    %
-    % HATCHEDLINE(obj,X,Y,varargin) the HATCHEDLINE method is overloaded so it is possible 
-    % to plot into the a/b axis. Varargin will be passed to the HATCHEDLINE
-    % function.
-    %
-    % See also: hatchedline, carpetplot.contourf, carpetplot.plot
-    %
+        end
+        
+        function ret = hatchedline(obj,a,b,varargin)
+            % HATCHEDLINE plots a hatched line into the carpet plot.
+            % This function is called the HATCHEDLINE function by Rob McDonald; see his
+            % documentation for further details on how to use it.
+            %
+            % HATCHEDLINE(obj,X,Y,varargin) the HATCHEDLINE method is overloaded so it is possible
+            % to plot into the a/b axis. Varargin will be passed to the HATCHEDLINE
+            % function.
+            %
+            % See also: hatchedline, carpetplot.contourf, carpetplot.plot
+            %
             a = a(:);
             b = b(:);
             
@@ -1615,23 +1702,23 @@ methods
                 ret = CarpetPlot.hatchedlinefcn(x',y',varargin{:});
             else
                 warning('Data is out of Range')
-                ret = []; 
-            end            
+                ret = [];
+            end
+        end
+        
+        function reset(obj)
+            % RESET manual changes made with the plot tool box.
+            %
+            % reset(obj) redraws the plot and updates the positions and rotations
+            % of the labels. All changes made manually or trough handles will be
+            % lost and the current style will be restored.
+            %
+            % See also: CarpetPlot.refresh
+            obj.refreshplot;
+            obj.plabel(1);
+            obj.plabel(2);
+        end
     end
-
-    function reset(obj)
-    % RESET manual changes made with the plot tool box. 
-    % 
-    % reset(obj) redraws the plot and updates the positions and rotations
-    % of the labels. All changes made manually or trough handles will be
-    % lost and the current style will be restored.
-    %
-    % See also: CarpetPlot.refresh
-        obj.refreshplot;
-        obj.plabel(1);
-        obj.plabel(2);  
-    end    
-end
 
 %% Private function prototypes
 methods (Access = private)
