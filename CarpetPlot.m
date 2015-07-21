@@ -692,82 +692,78 @@ classdef CarpetPlot < handle
         
     end
 
-properties (Access = private)
+    properties (Access = private)
+        %Constants
+        CONTOUR_RESOLUTION
+        MAX_POINTS
 
-%Constants
+        %Resize Listener
+        listener
+        listenerX
+        listenerLogX
+        listenerY
+        listenerLogY
 
-CONTOUR_RESOLUTION
-MAX_POINTS
+        % Styles for the interpolation lines
+        interpLineStyle
+        interpMarkerStyle
+        interpTextStyle
 
-%Resize Listener
-listener
-listenerX
-listenerLogX
-listenerY
-listenerLogY
+        % Name of the instance object used for the figure resizefcn
+        instanceName
 
-% Styles for the interpolation lines
-interpLineStyle
-interpMarkerStyle
-interpTextStyle
+        % Debugging only
+        debugPointsA
+        debugPointsB
 
-% Name of the instance object used for the figure resizefcn
-instanceName
+        % Plot needs a refresh or not.
+        needPlotRefresh
+        needRelabel
+        needTextRefresh
+        needTextStyleRefresh
 
-% Debugging only
-debugPointsA
-debugPointsB
+        % Sets the z value of the plot
+        z
 
-% Plot needs a refresh or not.    
-needPlotRefresh
-needRelabel 
-needTextRefresh
-needTextStyleRefresh
+        % Private variables of dependend variables
+        pzlabelandle
+        pZAlignement
+        pStyle
+        pZ
+        pK1
+        pK2
+        pK0
+        pCurveFitting
 
-% Sets the z value of the plot
-z
+        % How the data is going to be interpolated
+        dataFitting
 
-% Private variables of dependend variables
+        % The data to plot (in the right intervals)
+        plotDataX
+        plotDataY
 
-pzlabelandle
-pZAlignement
-pStyle
-pZ
-pK1
-pK2
-pK0
-pCurveFitting
+        % Matrix of input data
+        inputMatrixA
+        inputMatrixB
+        inputMatrixX
+        inputMatrixY
 
-% How the data is going to be interpolated
-dataFitting
+        % Variables to keep hold functionality
+        plotholding
+        holding
 
-% The data to plot (in the right intervals)
-plotDataX
-plotDataY
+        % Struct with axis infos. A lot of stuff
+        axis
 
-% Matrix of input data
-inputMatrixA
-inputMatrixB
-inputMatrixX
-inputMatrixY
+        % fix the axis limits
+        keepTicks
 
-% Variables to keep hold functionality
-plotholding
-holding
+        % 3... Cheater Plot 4... Four Variable plot
+        type
 
-% Struct with axis infos. A lot of stuff
-axis
-
-% fix the axis limits
-keepTicks
-
-% 3... Cheater Plot 4... Four Variable plot
-type
-
-recentXLimits;
-recentYLimits;
-
-end
+        recentXLimits;
+        recentYLimits;
+    end
     
 methods
         
