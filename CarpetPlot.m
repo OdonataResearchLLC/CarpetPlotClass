@@ -800,7 +800,7 @@ classdef CarpetPlot < handle
 
             % Constants
             obj.CONTOUR_RESOLUTION = 250;
-            obj.MAX_POINTS = 15;
+            obj.MAX_POINTS = 25;
 
             % Set default labels: The variable input names
             obj.needRelabel = 0;
